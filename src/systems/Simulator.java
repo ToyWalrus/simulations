@@ -1,26 +1,29 @@
 package systems;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Timer;
 
 import interfaces.ISimulation;
 import interfaces.ITracker;
 
-public class Simulator {
+public class Simulator implements ActionListener {
 	private List<ISimulation> simulations;
-	private long tickDelay = 0;
+	private Timer timer;
+	private int totalIterations;
+	private int notificationFrequency;
+	private int currentIteration;
 
-	public Simulator(int numSimulations) {
-		simulations = new ArrayList<ISimulation>();
-
-		for (int i = 0; i < numSimulations; ++i) {
-			PopulationSimulation sim = new PopulationSimulation(50, 1);
-			simulations.add(sim);
-		}
-	}
-	
 	public Simulator(List<ISimulation> simulations) {
 		this.simulations = simulations;
+		timer = new Timer(10, this);
+	}
+	
+	public Simulator(List<ISimulation> simulations, int tickDelay) {
+		this(simulations);		
+		timer = new Timer(Math.max(tickDelay, 1), this);
 	}
 
 	public List<ITracker> addTrackerTypeToSimulations(Class<? extends ITracker> trackerType) {
@@ -38,40 +41,56 @@ public class Simulator {
 		}
 		return trackers;
 	}
-	
+
 	/**
 	 * Set the delay between ticks, in milliseconds.
+	 * 
 	 * @param delay
 	 */
-	public void setTickDelay(long delay) { tickDelay = delay; }
+	public void setTickDelay(int delay) {
+		delay = Math.max(delay, 1);
+		boolean running = false;
+		if (timer.isRunning()) {
+			timer.stop();
+			running = true;
+		}
+		
+		timer = new Timer(delay, this);
+		
+		if (running) {
+			timer.start();
+		}
+	}
 
 	public void startSimulation(int numIterations) {
 		startSimulation(numIterations, numIterations + 1);
 	}
 
-	public void startSimulation(int numIterations, int notifyInterval) {
-		int notifyCounter = 0;
-//		System.out.println("Starting simulations with " + numIterations + " iterations");
-		try {
-			for (int i = 0; i < numIterations; ++i) {
-				long timeStart = System.currentTimeMillis();
-				for (ISimulation sim : simulations) {
-					sim.tick();
-				}
-				long timeToExecute = System.currentTimeMillis() - timeStart;
+	public void startSimulation(int numIterations, int notifyInterval) {		
+		totalIterations = numIterations;
+		currentIteration = totalIterations;
+		notificationFrequency = notifyInterval;
+		timer.start();
+	}
 
-				notifyCounter++;
-				if (notifyCounter == notifyInterval) {
-					System.out.println("Iteration #" + i + "...");
-					notifyCounter = 0;
-				}
-				Thread.sleep(Math.max(tickDelay - timeToExecute, 0));
-			}
-		} catch (InterruptedException e) {
-			System.err.println("Simulation exited early!");
-			e.printStackTrace();
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (currentIteration <= 0) {
+			timer.stop();
 			return;
 		}
-//		System.out.println("Done!");
+		
+		runSimTick();
+		currentIteration--;
+	}
+	
+	private void runSimTick() {		
+		for (ISimulation sim : simulations) {
+			sim.tick();
+		}
+
+		if (currentIteration % notificationFrequency == 0) {
+			System.out.println("Iteration #" + (totalIterations - currentIteration) + "...");			
+		}
 	}
 }

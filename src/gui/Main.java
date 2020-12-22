@@ -17,17 +17,17 @@ import interfaces.ITracker;
 public class Main {
 
 	public static void main(String[] args) {
-		final int iterations = 20;
-		final Simulator simulator = new Simulator(generateSameSims(3, 100, .9));
-		simulator.setTickDelay(500);
+		final int iterations = 1000;
+		int frameRate = Math.round(1000 / (float) 60);
+		final Simulator simulator = new Simulator(generateSameSims(3, 30, 1), frameRate);
 		List<ITracker> trackers = simulator.addTrackerTypeToSimulations(PopulationTracker.class);
 		final LiveLineChart lineChart = new LiveLineChart(trackers, iterations);
-		
+
 		JFrame frame = new JFrame("Simulation");
 		frame.add(lineChart.getChart(), BorderLayout.CENTER);
-		
+
 		JButton start = new JButton("Start Simulation");
-		start.addActionListener(new ActionListener() {			
+		start.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				lineChart.startRecording();
@@ -35,9 +35,9 @@ public class Main {
 			}
 		});
 		frame.add(start, BorderLayout.SOUTH);
-		
+
 		frame.pack();
-		frame.setVisible(true);		
+		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
@@ -53,7 +53,7 @@ public class Main {
 
 		return sims;
 	}
-	
+
 	private static List<ISimulation> generateSameSims(int numSims, int initialEntityCount, double baseSpawnChance) {
 		List<ISimulation> sims = new ArrayList<ISimulation>();
 
@@ -62,6 +62,6 @@ public class Main {
 			sims.add(sim);
 		}
 
-		return sims;		
+		return sims;
 	}
 }

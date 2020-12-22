@@ -10,9 +10,6 @@ import interfaces.ITracker;
 public class PopulationTracker implements ITracker {
 	private static int trackerId = 1;
 	private List<IDataListener> dataListeners;
-	private int trackCalls = 0;
-	private double popAverage = 0;
-	private int popSum = 0;
 	private String trackerName;
 
 	public PopulationTracker() {
@@ -20,29 +17,26 @@ public class PopulationTracker implements ITracker {
 		trackerName = "Population Tracker " + trackerId;
 		trackerId++;
 	}
-	
+
 	@Override
 	public void track(ISimulation sim) {
-		if (sim.getClass() != PopulationSimulation.class) return;
-		
-		trackCalls++;
-		
-		int currentPop = ((PopulationSimulation)sim).getCurrentPopulation();
-		popSum += currentPop;
-		popAverage = (double) popSum / (double) trackCalls;
-		
+		if (sim.getClass() != PopulationSimulation.class)
+			return;
+
+		int currentPop = ((PopulationSimulation) sim).getCurrentPopulation();
+
 		for (IDataListener listener : dataListeners) {
-			if (listener != null) {			
+			if (listener != null) {
 				listener.dataReceived(currentPop, getTrackerName());
 			}
 		}
 	}
 
 	@Override
-	public double getAverage() {
-		return popAverage;
-	}	
-	
+	public void reset() {
+
+	}
+
 	@Override
 	public String getTrackerName() {
 		return trackerName;
@@ -50,7 +44,7 @@ public class PopulationTracker implements ITracker {
 
 	@Override
 	public void registerDataListener(IDataListener listener) {
-		dataListeners.add(listener);		
+		dataListeners.add(listener);
 	}
 
 	@Override

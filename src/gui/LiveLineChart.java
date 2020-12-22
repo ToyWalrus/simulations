@@ -3,31 +3,33 @@ package gui;
 import java.awt.*;
 import java.sql.Date;
 import java.util.List;
+
+import javax.swing.JPanel;
+
 import java.util.ArrayList;
 
 import org.jfree.chart.*;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.data.time.Day;
-import org.jfree.data.time.DynamicTimeSeriesCollection;
-import org.jfree.data.time.Millisecond;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import interfaces.IDataListener;
 import interfaces.ITracker;
 
-public class LiveLineChart implements IDataListener {
+public class LiveLineChart extends JPanel implements IDataListener {
 	private List<String> seriesKeys;
 	private List<String> unregisteredSeries;
 	private List<Color> lineColors;
 
 	private int timeTracker;
 	private int dataReceivedCalls;
-	private DynamicTimeSeriesCollection dataset;
+	private XYSeriesCollection dataset;
 	private JFreeChart chart;
 	private boolean recording;
 
-	public LiveLineChart(List<ITracker> dataTrackers, int expectedNumDataPoints) {
+	public LiveLineChart(List<ITracker> dataTrackers, int expectedNumDataPoints) {		
 		seriesKeys = new ArrayList<String>();
 		unregisteredSeries = new ArrayList<String>();
 		recording = false;
@@ -69,20 +71,18 @@ public class LiveLineChart implements IDataListener {
 	}
 
 	private void initChart(int numSeries, int expectedNumDataPoints) {
-		dataset = new DynamicTimeSeriesCollection(numSeries, expectedNumDataPoints);
-		dataset.setTimeBase(new Millisecond(new Date(System.currentTimeMillis())));
-
-		int counter = 0;
-		for (String seriesName : seriesKeys) {
-			dataset.addSeries(new float[expectedNumDataPoints], counter++, seriesName);
+		dataset = new XYSeriesCollection();
+		for (String seriesName : seriesKeys) {			
+			dataset.addSeries(new XYSeries(seriesName, false, false));
 		}
 
-		chart = ChartFactory.createTimeSeriesChart("Population Over Time", "Time", "Population", dataset);
+		chart = ChartFactory.createXYLineChart("Population Over Time", "Generations", "Population", dataset);
 
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		for (int i = 0; i < numSeries; ++i) {
 			renderer.setSeriesPaint(i, lineColors.get(i % lineColors.size()));
 			renderer.setSeriesStroke(i, new BasicStroke(2.0f));
+			renderer.setSeriesShapesVisible(i, false);
 		}
 		
 		XYPlot plot = chart.getXYPlot();
@@ -95,7 +95,7 @@ public class LiveLineChart implements IDataListener {
 		plot.setDomainGridlinesVisible(false);
 
 		chart.getLegend().visible = true;
-		chart.setTitle(new TextTitle("Population", new Font("Serif", java.awt.Font.BOLD, 18)));
+		chart.setTitle(new TextTitle("Population Over Time", new Font("Serif", java.awt.Font.BOLD, 18)));
 		
 		timeTracker = 0;
 		dataReceivedCalls = -1;
@@ -115,18 +115,13 @@ public class LiveLineChart implements IDataListener {
 		}
 		
 		if (dataReceivedCalls == seriesKeys.size() - 1) {
+			repaint();
 			dataReceivedCalls = 0;
 			timeTracker++;
-			System.out.println();
-			System.out.println("On to next index: " + timeTracker);
 		} else {		
 			dataReceivedCalls++;
 		}
 		
-		System.out.println("Data received for " + key + ": " + value);
-
-		int seriesIdx = seriesKeys.indexOf(key);
-		dataset.addValue(seriesIdx, timeTracker, (float) value);
-
+		dataset.getSeries(key).add(timeTracker, value);
 	}
 }

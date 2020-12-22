@@ -5,5 +5,5 @@ public interface ITracker {
 	public void registerDataListener(IDataListener listener);
 	public void removeDataListener(IDataListener listener);
 	public void track(ISimulation simulation);
-	public double getAverage();
+	public void reset();
 }

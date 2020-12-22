@@ -12,10 +12,16 @@ public class PopulationSimulation implements ISimulation {
 	private List<Entity> entities;
 	private List<ITracker> trackers;
 	private double baseSpawnChance;
+	private int initialNumEntities;
 	private Random rand;
 
 	public PopulationSimulation(int initialNumEntities, double baseSpawnChance) {
 		this.baseSpawnChance = baseSpawnChance;
+		this.initialNumEntities = initialNumEntities;
+		initSim();
+	}
+	
+	private void initSim() {
 		this.entities = new ArrayList<Entity>();
 		this.trackers = new ArrayList<ITracker>();
 		
@@ -23,7 +29,7 @@ public class PopulationSimulation implements ISimulation {
 			entities.add(new Entity(.1, .05));
 		}
 		
-		rand = new Random(System.currentTimeMillis());
+		rand = new Random(System.currentTimeMillis() * new Random().nextLong());
 	}
 	
 	public double getBaseSpawnChance() { return baseSpawnChance; }
@@ -62,6 +68,14 @@ public class PopulationSimulation implements ISimulation {
 	private void InformTrackers() {
 		for (ITracker tracker : trackers) {
 			tracker.track(this);
+		}
+	}
+
+	@Override
+	public void reset() {
+		initSim();
+		for (ITracker tracker : trackers) {
+			tracker.reset();
 		}
 	}
 }

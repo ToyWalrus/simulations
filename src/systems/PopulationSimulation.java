@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import interfaces.ISimulation;
+import interfaces.ITracker;
 import models.Entity;
 
-public class Simulation implements ISimulation {
+public class PopulationSimulation implements ISimulation {
 	private List<Entity> entities;
 	private List<ITracker> trackers;
 	private double baseSpawnChance;
 	private Random rand;
 
-	public Simulation(int initialNumEntities, double baseSpawnChance) {
+	public PopulationSimulation(int initialNumEntities, double baseSpawnChance) {
 		this.baseSpawnChance = baseSpawnChance;
 		this.entities = new ArrayList<Entity>();
 		this.trackers = new ArrayList<ITracker>();

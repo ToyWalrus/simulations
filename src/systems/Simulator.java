@@ -3,6 +3,9 @@ package systems;
 import java.util.ArrayList;
 import java.util.List;
 
+import interfaces.ISimulation;
+import interfaces.ITracker;
+
 public class Simulator {
 	private List<ISimulation> simulations;
 	private long tickDelay = 0;
@@ -11,7 +14,7 @@ public class Simulator {
 		simulations = new ArrayList<ISimulation>();
 
 		for (int i = 0; i < numSimulations; ++i) {
-			Simulation sim = new Simulation(50, 1);
+			PopulationSimulation sim = new PopulationSimulation(50, 1);
 			simulations.add(sim);
 		}
 	}
@@ -48,7 +51,7 @@ public class Simulator {
 
 	public void startSimulation(int numIterations, int notifyInterval) {
 		int notifyCounter = 0;
-		System.out.println("Starting simulations with " + numIterations + " iterations");
+//		System.out.println("Starting simulations with " + numIterations + " iterations");
 		try {
 			for (int i = 0; i < numIterations; ++i) {
 				long timeStart = System.currentTimeMillis();
@@ -65,11 +68,10 @@ public class Simulator {
 				Thread.sleep(Math.max(tickDelay - timeToExecute, 0));
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			System.err.println("Simulation exited early!");
 			e.printStackTrace();
 			return;
 		}
-		System.out.println("Done!");
+//		System.out.println("Done!");
 	}
 }

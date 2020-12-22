@@ -1,4 +1,4 @@
-package systems;
+package interfaces;
 
 public interface ISimulation {
 	public void tick();

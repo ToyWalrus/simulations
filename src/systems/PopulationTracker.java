@@ -13,9 +13,13 @@ public class PopulationTracker implements ITracker {
 	private String trackerName;
 
 	public PopulationTracker() {
-		dataListeners = new ArrayList<IDataListener>();
-		trackerName = "Population Tracker " + trackerId;
-		trackerId++;
+		this("Population Tracker " + trackerId);
+	}
+	
+	public PopulationTracker(String trackerName) {
+		this.trackerName = trackerName;
+		this.dataListeners = new ArrayList<IDataListener>();
+		trackerId++;		
 	}
 
 	@Override

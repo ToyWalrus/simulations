@@ -3,6 +3,7 @@ package gui;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jfree.chart.*;
 import org.jfree.chart.plot.XYPlot;
@@ -17,7 +18,7 @@ import interfaces.ITracker;
 public class LiveLineChart implements IDataListener {
 	private List<String> seriesKeys;
 	private List<String> unregisteredSeries;
-	private List<Color> lineColors;
+	private List<Color> defaultLineColors;
 
 	private int timeTracker;
 	private int dataReceivedCalls;
@@ -27,6 +28,8 @@ public class LiveLineChart implements IDataListener {
 	private String chartName;
 	private String xAxisName;
 	private String yAxisName;
+	
+	private HashMap<String, Color> trackerColors;
 
 	public LiveLineChart(String chartName, String xAxisName, String yAxisName, List<ITracker> dataTrackers) {
 		seriesKeys = new ArrayList<String>();
@@ -51,14 +54,21 @@ public class LiveLineChart implements IDataListener {
 	public ChartPanel getChart() {
 		return new ChartPanel(chart);
 	}
+	
+	public void setLineColor(String trackerName, Color color) {
+		if (trackerColors == null) {
+			trackerColors = new HashMap<String, Color>();
+		}
+		trackerColors.put(trackerName, color);
+	}
 
 	private void initLineColors() {
-		lineColors = new ArrayList<Color>();
-		lineColors.add(Color.CYAN);
-		lineColors.add(Color.GREEN);
-		lineColors.add(Color.ORANGE);
-		lineColors.add(Color.RED);
-		lineColors.add(Color.BLUE);
+		defaultLineColors = new ArrayList<Color>();
+		defaultLineColors.add(Color.CYAN);
+		defaultLineColors.add(Color.GREEN);
+		defaultLineColors.add(Color.ORANGE);
+		defaultLineColors.add(Color.RED);
+		defaultLineColors.add(Color.BLUE);
 	}
 
 	private void initChart() {
@@ -71,7 +81,14 @@ public class LiveLineChart implements IDataListener {
 
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		for (int i = 0; i < seriesKeys.size(); ++i) {
-			renderer.setSeriesPaint(i, lineColors.get(i % lineColors.size()));
+			Color lineColor;
+			if (trackerColors != null && trackerColors.containsKey(seriesKeys.get(i))) {
+				lineColor = trackerColors.get(seriesKeys.get(i));
+			} else {
+				lineColor = defaultLineColors.get(i % defaultLineColors.size());
+			}
+			
+			renderer.setSeriesPaint(i, lineColor);
 			renderer.setSeriesStroke(i, new BasicStroke(2.0f));
 			renderer.setSeriesShapesVisible(i, false);
 		}

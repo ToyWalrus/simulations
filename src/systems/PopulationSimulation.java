@@ -6,38 +6,32 @@ import java.util.Random;
 
 import interfaces.ISimulation;
 import interfaces.ITracker;
-import models.Entity;
+import models.entities.Entity;
 
 public class PopulationSimulation implements ISimulation {
-	private List<Entity> entities;
 	private List<ITracker> trackers;
+	private List<Entity> entities;
+	private List<Entity> initialPopulation;
+	private Entity baseEntity;
 	private double baseSpawnChance;
 	private Random rand;
-	private int initialEntityCountLowerBound = 20;
-	private int initialEntityCountUpperBound = 200;
 
-	public PopulationSimulation(int initialLowerBound, int initialUpperBound, double baseSpawnChance) {
-		this.trackers = new ArrayList<ITracker>();
+	public PopulationSimulation(List<Entity> basePopulation, double baseSpawnChance, Entity baseEntity) {
+		this.initialPopulation = basePopulation;
 		this.baseSpawnChance = baseSpawnChance;
-		this.initialEntityCountLowerBound = initialLowerBound;
-		this.initialEntityCountUpperBound = initialUpperBound;
-		initSim();
-	}
-
-	private void initSim() {
-		rand = new Random(System.currentTimeMillis() * new Random().nextLong());
-		this.entities = new ArrayList<Entity>();
+		this.baseEntity = baseEntity;
+		this.trackers = new ArrayList<ITracker>();
+		this.entities = new ArrayList<Entity>(basePopulation);
 		
-		int initialNumEntities = (rand.nextInt(initialEntityCountUpperBound - initialEntityCountLowerBound))
-				+ initialEntityCountLowerBound;
-		
-		for (int i = 0; i < initialNumEntities; ++i) {
-			entities.add(new Entity(.1, .05));
-		}
+		rand = new Random(System.currentTimeMillis() * (new Random().nextLong()));
 	}
-
-	public double getBaseSpawnChance() {
-		return baseSpawnChance;
+	
+	public PopulationSimulation(List<Entity> basePopulation) {
+		this(basePopulation, 0, null);
+	}
+	
+	public PopulationSimulation(double baseSpawnChance, Entity baseEntity) {
+		this(new ArrayList<Entity>(), baseSpawnChance, baseEntity);
 	}
 
 	public int getCurrentPopulation() {
@@ -52,26 +46,33 @@ public class PopulationSimulation implements ISimulation {
 	@Override
 	public void tick() {
 		DoBaseSpawn();
-		CheckForEntityDeath();
+		DoEntityTick();
 		InformTrackers();
 	}
 
 	private void DoBaseSpawn() {
-		if (rand.nextDouble() <= baseSpawnChance) {
-			entities.add(new Entity(.1, .05));
+		if (baseSpawnChance > 0 && rand.nextDouble() <= baseSpawnChance) {
+			entities.add(baseEntity.replicatePerfectly());
 		}
 	}
-
-	private void CheckForEntityDeath() {
-		List<Entity> died = new ArrayList<Entity>();
+	
+	private void DoEntityTick() {
+		if (entities.size() == 0) return;
+		
+		List<Entity> died = new ArrayList<Entity>();	
+		List<Entity> born = new ArrayList<Entity>();
 		for (Entity entity : entities) {
-			if (rand.nextDouble() <= entity.deathChance) {
+			if (rand.nextDouble() < entity.getReplicationChance()) {
+				born.add(entity.replicate());
+			}
+			if (rand.nextDouble() < entity.getDeathChance()) {
 				entity.die();
 				died.add(entity);
 			}
-		}
-
+		}		
+		
 		entities.removeAll(died);
+		entities.addAll(born);
 	}
 
 	private void InformTrackers() {
@@ -85,6 +86,7 @@ public class PopulationSimulation implements ISimulation {
 		for (ITracker tracker : trackers) {
 			tracker.reset();
 		}
-		initSim();
+		entities.clear();
+		entities = new ArrayList<Entity>(initialPopulation); 
 	}
 }

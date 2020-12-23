@@ -26,7 +26,7 @@ public class Simulator implements ActionListener {
 		timer = new Timer(Math.max(tickDelay, 1), this);
 	}
 
-	public List<ITracker> addTrackerTypeToSimulations(Class<? extends ITracker> trackerType) {
+	public List<ITracker> addTrackerTypeToAllSimulations(Class<? extends ITracker> trackerType) {
 		List<ITracker> trackers = new ArrayList<ITracker>();
 		for (ISimulation sim : simulations) {
 			ITracker tracker = null;

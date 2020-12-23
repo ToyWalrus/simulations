@@ -3,12 +3,12 @@ package gui;
 import systems.*;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,20 +16,36 @@ import javax.swing.JPanel;
 
 import interfaces.ISimulation;
 import interfaces.ITracker;
+import models.entities.BlueEntity;
 
 public class Main {
 
 	public static void main(String[] args) {
-		final int iterations = 1000;
 		int tickLength = Math.round(1000 / (float) 60);
-		int initialEntityCountLowerBound = 20;
-		int initialEntityCountUpperBound = 200;
+//		int initialEntityCountLowerBound = 20;
+//		int initialEntityCountUpperBound = 200;
 
-		final Simulator simulator = new Simulator(
-				getSimulations(4, initialEntityCountLowerBound, initialEntityCountUpperBound, 1), tickLength);
-		List<ITracker> trackers = simulator.addTrackerTypeToSimulations(PopulationTracker.class);
-		final LiveLineChart lineChart = new LiveLineChart("Population Over Time", "Generations", "Population",
-				trackers);
+		List<ISimulation> simulations = new ArrayList<ISimulation>();
+		List<ITracker> trackers = new ArrayList<ITracker>();
+
+		PopulationSimulation popSim1 = new PopulationSimulation(1, new BlueEntity(.05, .05));
+		PopulationTracker tracker1 = new PopulationTracker("Blue Entity");
+		popSim1.addTracker(tracker1);
+
+		simulations.add(popSim1);
+		trackers.add(tracker1);
+
+		Simulator simulator = new Simulator(simulations, tickLength);
+//		List<ITracker> trackers = simulator.addTrackerTypeToAllSimulations(PopulationTracker.class);
+
+		LiveLineChart lineChart = new LiveLineChart("Population Over Time", "Generations", "Population", trackers);
+		lineChart.setLineColor(tracker1.getTrackerName(), Color.BLUE);
+
+		initGUI(simulator, lineChart);
+	}
+
+	private static void initGUI(final Simulator simulator, final LiveLineChart lineChart) {
+		final int iterations = 1000;
 
 		JFrame frame = new JFrame("Simulation");
 		frame.add(lineChart.getChart(), BorderLayout.CENTER);
@@ -68,8 +84,7 @@ public class Main {
 		List<ISimulation> sims = new ArrayList<ISimulation>();
 
 		for (int i = 0; i < numSims; ++i) {
-			PopulationSimulation sim = new PopulationSimulation(initialEntityCountLowerBound,
-					initialEntityCountUpperBound, baseSpawnChance);
+			PopulationSimulation sim = new PopulationSimulation(1, new BlueEntity(.1, .05));
 			sims.add(sim);
 		}
 

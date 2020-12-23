@@ -12,33 +12,42 @@ public class PopulationSimulation implements ISimulation {
 	private List<Entity> entities;
 	private List<ITracker> trackers;
 	private double baseSpawnChance;
-	private int initialNumEntities;
 	private Random rand;
+	private int initialEntityCountLowerBound = 20;
+	private int initialEntityCountUpperBound = 200;
 
-	public PopulationSimulation(int initialNumEntities, double baseSpawnChance) {
+	public PopulationSimulation(int initialLowerBound, int initialUpperBound, double baseSpawnChance) {
+		this.trackers = new ArrayList<ITracker>();
 		this.baseSpawnChance = baseSpawnChance;
-		this.initialNumEntities = initialNumEntities;
+		this.initialEntityCountLowerBound = initialLowerBound;
+		this.initialEntityCountUpperBound = initialUpperBound;
 		initSim();
 	}
-	
+
 	private void initSim() {
+		rand = new Random(System.currentTimeMillis() * new Random().nextLong());
 		this.entities = new ArrayList<Entity>();
-		this.trackers = new ArrayList<ITracker>();
+		
+		int initialNumEntities = (rand.nextInt(initialEntityCountUpperBound - initialEntityCountLowerBound))
+				+ initialEntityCountLowerBound;
 		
 		for (int i = 0; i < initialNumEntities; ++i) {
 			entities.add(new Entity(.1, .05));
 		}
-		
-		rand = new Random(System.currentTimeMillis() * new Random().nextLong());
 	}
-	
-	public double getBaseSpawnChance() { return baseSpawnChance; }
-	public int getCurrentPopulation() { return entities.size(); }
-	
+
+	public double getBaseSpawnChance() {
+		return baseSpawnChance;
+	}
+
+	public int getCurrentPopulation() {
+		return entities.size();
+	}
+
 	@Override
 	public void addTracker(ITracker tracker) {
 		trackers.add(tracker);
-	}	
+	}
 
 	@Override
 	public void tick() {
@@ -46,13 +55,13 @@ public class PopulationSimulation implements ISimulation {
 		CheckForEntityDeath();
 		InformTrackers();
 	}
-	
+
 	private void DoBaseSpawn() {
 		if (rand.nextDouble() <= baseSpawnChance) {
 			entities.add(new Entity(.1, .05));
 		}
 	}
-	
+
 	private void CheckForEntityDeath() {
 		List<Entity> died = new ArrayList<Entity>();
 		for (Entity entity : entities) {
@@ -61,10 +70,10 @@ public class PopulationSimulation implements ISimulation {
 				died.add(entity);
 			}
 		}
-		
+
 		entities.removeAll(died);
 	}
-	
+
 	private void InformTrackers() {
 		for (ITracker tracker : trackers) {
 			tracker.track(this);
@@ -73,9 +82,9 @@ public class PopulationSimulation implements ISimulation {
 
 	@Override
 	public void reset() {
-		initSim();
 		for (ITracker tracker : trackers) {
 			tracker.reset();
 		}
+		initSim();
 	}
 }

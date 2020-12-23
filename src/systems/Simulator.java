@@ -20,9 +20,9 @@ public class Simulator implements ActionListener {
 		this.simulations = simulations;
 		timer = new Timer(10, this);
 	}
-	
+
 	public Simulator(List<ISimulation> simulations, int tickDelay) {
-		this(simulations);		
+		this(simulations);
 		timer = new Timer(Math.max(tickDelay, 1), this);
 	}
 
@@ -54,9 +54,9 @@ public class Simulator implements ActionListener {
 			timer.stop();
 			running = true;
 		}
-		
+
 		timer = new Timer(delay, this);
-		
+
 		if (running) {
 			timer.start();
 		}
@@ -66,11 +66,23 @@ public class Simulator implements ActionListener {
 		startSimulation(numIterations, numIterations + 1);
 	}
 
-	public void startSimulation(int numIterations, int notifyInterval) {		
+	public void startSimulation(int numIterations, int notifyInterval) {
 		totalIterations = numIterations;
 		currentIteration = totalIterations;
 		notificationFrequency = notifyInterval;
 		timer.start();
+	}
+
+	public void resetSimulation() {
+		if (timer.isRunning()) {
+			timer.stop();
+		}
+		
+		setTickDelay(timer.getDelay());
+		
+		for (ISimulation sim : simulations) {
+			sim.reset();
+		}
 	}
 
 	@Override
@@ -79,18 +91,18 @@ public class Simulator implements ActionListener {
 			timer.stop();
 			return;
 		}
-		
+
 		runSimTick();
 		currentIteration--;
 	}
-	
-	private void runSimTick() {		
+
+	private void runSimTick() {
 		for (ISimulation sim : simulations) {
 			sim.tick();
 		}
 
 		if (currentIteration % notificationFrequency == 0) {
-			System.out.println("Iteration #" + (totalIterations - currentIteration) + "...");			
+			System.out.println("Iteration #" + (totalIterations - currentIteration) + "...");
 		}
 	}
 }

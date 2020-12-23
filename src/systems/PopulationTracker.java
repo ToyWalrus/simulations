@@ -34,7 +34,7 @@ public class PopulationTracker implements ITracker {
 
 	@Override
 	public void reset() {
-
+		System.out.println("Reset " + getTrackerName());
 	}
 
 	@Override

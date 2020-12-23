@@ -28,12 +28,19 @@ public class Main {
 		List<ISimulation> simulations = new ArrayList<ISimulation>();
 		List<ITracker> trackers = new ArrayList<ITracker>();
 
-		PopulationSimulation popSim1 = new PopulationSimulation(1, new BlueEntity(.05, .05));
-		PopulationTracker tracker1 = new PopulationTracker("Blue Entity");
+		PopulationSimulation popSim1 = new PopulationSimulation(1, new BlueEntity(0, .05));
+		PopulationTracker tracker1 = new PopulationTracker("Spawn = 1");
 		popSim1.addTracker(tracker1);
+		
+		PopulationSimulation popSim2 = new PopulationSimulation(.5, new BlueEntity(0, .05));
+		PopulationTracker tracker2 = new PopulationTracker("Spawn = 0.5");
+		popSim2.addTracker(tracker2);
 
 		simulations.add(popSim1);
+		simulations.add(popSim2);
+		
 		trackers.add(tracker1);
+		trackers.add(tracker2);
 
 		Simulator simulator = new Simulator(simulations, tickLength);
 //		List<ITracker> trackers = simulator.addTrackerTypeToAllSimulations(PopulationTracker.class);
@@ -50,33 +57,70 @@ public class Main {
 		JFrame frame = new JFrame("Simulation");
 		frame.add(lineChart.getChart(), BorderLayout.CENTER);
 
-		JButton start = new JButton("Start Simulation");
+		JPanel panel = initActionButtons(simulator, lineChart, iterations);
+		frame.add(panel, BorderLayout.SOUTH);
+
+		frame.pack();
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	private static JPanel initActionButtons(final Simulator simulator, final LiveLineChart lineChart, final int iterations) {
+		final JButton start = new JButton("Start");		
+		final JButton pause = new JButton("Pause");
+		final JButton resume = new JButton("Resume");
+		final JButton reset = new JButton("Reset");
+		
+		resume.setEnabled(false);
+		pause.setEnabled(false);
+		
 		start.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				simulator.startSimulation(iterations);
+				pause.setEnabled(true);
+				resume.setEnabled(false);
+				start.setEnabled(false);
+			}
+		});
+		
+		pause.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulator.pauseSimulation();
+				pause.setEnabled(false);
+				resume.setEnabled(true);
+			}
+		});
+		
+		resume.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulator.resumeSimulation();
+				pause.setEnabled(true);
+				resume.setEnabled(false);
 			}
 		});
 
-		JButton reset = new JButton("Reset Simulation");
 		reset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				simulator.resetSimulation();
 				lineChart.resetChart();
+				start.setEnabled(true);
+				pause.setEnabled(false);
+				resume.setEnabled(false);
 			}
 		});
 
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		panel.add(start);
+		panel.add(pause);
+		panel.add(resume);
 		panel.add(reset);
-
-		frame.add(panel, BorderLayout.SOUTH);
-
-		frame.pack();
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		return panel;
 	}
 
 	private static List<ISimulation> getSimulations(int numSims, int initialEntityCountLowerBound,

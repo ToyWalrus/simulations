@@ -47,11 +47,11 @@ public class LiveLineChart implements IDataListener {
 			seriesKeys.add(tracker.getTrackerName());
 		}
 
-		initLineColors();
-		initChart();
+		initDefaultLineColors();		
 	}
 
 	public ChartPanel getChart() {
+		initChart();
 		return new ChartPanel(chart);
 	}
 	
@@ -62,7 +62,7 @@ public class LiveLineChart implements IDataListener {
 		trackerColors.put(trackerName, color);
 	}
 
-	private void initLineColors() {
+	private void initDefaultLineColors() {
 		defaultLineColors = new ArrayList<Color>();
 		defaultLineColors.add(Color.CYAN);
 		defaultLineColors.add(Color.GREEN);
@@ -111,6 +111,7 @@ public class LiveLineChart implements IDataListener {
 	
 	public void resetChart() {	
 		timeTracker = 0;
+		dataReceivedCalls = -1;
 		dataset.removeAllSeries();
 		for (String seriesName : seriesKeys) {
 			dataset.addSeries(new XYSeries(seriesName, false, false));

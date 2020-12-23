@@ -45,22 +45,21 @@ public class PopulationSimulation implements ISimulation {
 
 	@Override
 	public void tick() {
-		DoBaseSpawn();
-		DoEntityTick();
-		InformTrackers();
+		doBaseSpawn();
+		doEntityTick();
+		informTrackers();
 	}
 
-	private void DoBaseSpawn() {
+	private void doBaseSpawn() {
 		if (baseSpawnChance > 0 && rand.nextDouble() <= baseSpawnChance) {
 			entities.add(baseEntity.replicatePerfectly());
 		}
 	}
 	
-	private void DoEntityTick() {
-		if (entities.size() == 0) return;
-		
+	private void doEntityTick() {
 		List<Entity> died = new ArrayList<Entity>();	
 		List<Entity> born = new ArrayList<Entity>();
+		
 		for (Entity entity : entities) {
 			if (rand.nextDouble() < entity.getReplicationChance()) {
 				born.add(entity.replicate());
@@ -75,7 +74,7 @@ public class PopulationSimulation implements ISimulation {
 		entities.addAll(born);
 	}
 
-	private void InformTrackers() {
+	private void informTrackers() {
 		for (ITracker tracker : trackers) {
 			tracker.track(this);
 		}

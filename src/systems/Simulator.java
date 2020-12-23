@@ -84,6 +84,16 @@ public class Simulator implements ActionListener {
 			sim.reset();
 		}
 	}
+	
+	public void pauseSimulation() {
+		timer.stop();
+	}
+	
+	public void resumeSimulation() {
+		if (timer != null) {
+			timer.start();
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

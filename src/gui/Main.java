@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 
 import interfaces.ISimulation;
 import interfaces.ITracker;
-import models.entities.BlueEntity;
+import models.entities.SimpleEntity;
 
 public class Main {
 
@@ -28,11 +28,11 @@ public class Main {
 		List<ISimulation> simulations = new ArrayList<ISimulation>();
 		List<ITracker> trackers = new ArrayList<ITracker>();
 
-		PopulationSimulation popSim1 = new PopulationSimulation(1, new BlueEntity(0, .05));
+		PopulationSimulation popSim1 = new PopulationSimulation(1, new SimpleEntity(0, .05));
 		PopulationTracker tracker1 = new PopulationTracker("Spawn = 1");
 		popSim1.addTracker(tracker1);
 		
-		PopulationSimulation popSim2 = new PopulationSimulation(.5, new BlueEntity(0, .05));
+		PopulationSimulation popSim2 = new PopulationSimulation(.5, new SimpleEntity(0, .05));
 		PopulationTracker tracker2 = new PopulationTracker("Spawn = 0.5");
 		popSim2.addTracker(tracker2);
 
@@ -128,7 +128,7 @@ public class Main {
 		List<ISimulation> sims = new ArrayList<ISimulation>();
 
 		for (int i = 0; i < numSims; ++i) {
-			PopulationSimulation sim = new PopulationSimulation(1, new BlueEntity(.1, .05));
+			PopulationSimulation sim = new PopulationSimulation(1, new SimpleEntity(.1, .05));
 			sims.add(sim);
 		}
 

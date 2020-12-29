@@ -7,31 +7,32 @@ import java.util.Random;
 import interfaces.ISimulation;
 import interfaces.ITracker;
 import models.entities.Entity;
+import models.entities.SimpleEntity;
 
 public class PopulationSimulation implements ISimulation {
 	private List<ITracker> trackers;
-	private List<Entity> entities;
-	private List<Entity> initialPopulation;
+	private List<SimpleEntity> entities;
+	private List<SimpleEntity> initialPopulation;
 	private Entity baseEntity;
 	private double baseSpawnChance;
 	private Random rand;
 
-	public PopulationSimulation(List<Entity> basePopulation, double baseSpawnChance, Entity baseEntity) {
+	public PopulationSimulation(List<SimpleEntity> basePopulation, double baseSpawnChance, Entity baseEntity) {
 		this.initialPopulation = basePopulation;
 		this.baseSpawnChance = baseSpawnChance;
 		this.baseEntity = baseEntity;
 		this.trackers = new ArrayList<ITracker>();
-		this.entities = new ArrayList<Entity>(basePopulation);
+		this.entities = new ArrayList<SimpleEntity>(basePopulation);
 		
 		rand = new Random(System.currentTimeMillis() * (new Random().nextLong()));
 	}
 	
-	public PopulationSimulation(List<Entity> basePopulation) {
+	public PopulationSimulation(List<SimpleEntity> basePopulation) {
 		this(basePopulation, 0, null);
 	}
 	
-	public PopulationSimulation(double baseSpawnChance, Entity baseEntity) {
-		this(new ArrayList<Entity>(), baseSpawnChance, baseEntity);
+	public PopulationSimulation(double baseSpawnChance, SimpleEntity baseEntity) {
+		this(new ArrayList<SimpleEntity>(), baseSpawnChance, baseEntity);
 	}
 
 	public int getCurrentPopulation() {
@@ -52,17 +53,17 @@ public class PopulationSimulation implements ISimulation {
 
 	private void doBaseSpawn() {
 		if (baseSpawnChance > 0 && rand.nextDouble() <= baseSpawnChance) {
-			entities.add(baseEntity.replicatePerfectly());
+			entities.add((SimpleEntity) baseEntity.replicatePerfectly());
 		}
 	}
 	
 	private void doEntityTick() {
-		List<Entity> died = new ArrayList<Entity>();	
-		List<Entity> born = new ArrayList<Entity>();
+		List<SimpleEntity> died = new ArrayList<SimpleEntity>();	
+		List<SimpleEntity> born = new ArrayList<SimpleEntity>();
 		
-		for (Entity entity : entities) {
+		for (SimpleEntity entity : entities) {
 			if (rand.nextDouble() < entity.getReplicationChance()) {
-				born.add(entity.replicate());
+				born.add((SimpleEntity) entity.replicate());
 			}
 			if (rand.nextDouble() < entity.getDeathChance()) {
 				entity.die();
@@ -86,6 +87,6 @@ public class PopulationSimulation implements ISimulation {
 			tracker.reset();
 		}
 		entities.clear();
-		entities = new ArrayList<Entity>(initialPopulation); 
+		entities = new ArrayList<SimpleEntity>(initialPopulation); 
 	}
 }

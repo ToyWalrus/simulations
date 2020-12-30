@@ -1,8 +1,11 @@
 package systems;
 
+import java.util.List;
+
 import models.entities.Entity;
 import models.entities.EntityStats;
 import models.genes.*;
+import models.world.Food;
 import models.world.World;
 
 public class EntityBehavior {
@@ -18,10 +21,15 @@ public class EntityBehavior {
 		double thirst = stats.getThirst();
 		double repro = stats.getReproductiveUrge();
 
+		// if being chased, run away
+		
 		if (thirst > hunger && thirst > repro) {
 			// get water
 		} else if (hunger > thirst && hunger > repro) {
-			world.getFoodInRadius(world.getEntityPosition(entity), entity.getGene(AwarenessGene.name).getValue());
+//			List<Food> food = world.getFoodInRadius(world.getEntityPosition(entity),
+//					entity.getGene(AwarenessGene.name).getValue());
+		} else {
+			// find mate
 		}
 	}
 }

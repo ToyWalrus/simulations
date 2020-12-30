@@ -1,23 +1,27 @@
 package models.world;
 
+import com.google.common.collect.HashBiMap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 import models.entities.Entity;
+import util.HelperFunctions;
 
 public class World {
 	private HashMap<Position, Food> food;
-	private HashMap<Position, Entity> entities;
+	private HashBiMap<Position, Entity> entities;
 	private int worldWidth;
 	private int worldHeight;
 	private Random rand;
 
-	public World(HashMap<Position, Food> foodLocations, HashMap<Position, Entity> entities, int width, int height) {
+	public World(HashMap<Position, Food> foodLocations, Map<Position, Entity> entities, int width, int height) {
 		this.food = foodLocations;
-		this.entities = entities;
+		this.entities = HashBiMap.create(entities);
 		worldWidth = width;
 		worldHeight = height;
 		rand = new Random(System.currentTimeMillis());
@@ -27,12 +31,12 @@ public class World {
 		this(new HashMap<Position, Food>(), new HashMap<Position, Entity>(), width, height);
 	}
 	
-	public HashMap<Position, Food> getFood() {
+	public Map<Position, Food> getFood() {
 		return food;
 	}
 
-	public HashMap<Position, Entity> getEntities() {
-		return entities;
+	public Set<Entity> getEntities() {
+		return entities.values();
 	}
 	
 	public void worldTick(double foodSpawnChance) {
@@ -40,10 +44,25 @@ public class World {
 	}
 	
 	public Position getEntityPosition(Entity e) {
-		for (Position p : entities.keySet()) {
-			if (entities.get(p) == e) return p;
+		return entities.inverse().get(e);		
+	}
+	
+	public void moveEntity(Entity e, double dx, double dy) {
+		Position origin = getEntityPosition(e);
+		if (origin == null) return;
+		
+		double x = HelperFunctions.clamp(origin.x + dx, 0, worldWidth);
+		double y = HelperFunctions.clamp(origin.y + dy, 0, worldHeight);
+		Position newPos = new Position(x, y);
+		
+		if (!entities.remove(origin, e)) {
+			System.err.println("Tried removing an entity from a place where it wasn't!");
 		}
-		return null;
+		
+		while (entities.containsKey(newPos)) {
+			newPos = new Position(newPos.x + 0.1, newPos.y + 0.1);
+		}	
+		entities.put(newPos, e);
 	}
 	
 	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
@@ -95,14 +114,8 @@ public class World {
 	
 	private List<Position> getPositionsInRadius(Position position, double radius, Set<Position> keySet) {
 		List<Position> positionsInRadius = new ArrayList<Position>();
-		double x = position.x;
-		double y = position.y;
 		for (Position p : keySet) {
-			double dx = p.x - x;
-			double dy = p.y - y;
-
-			double dist = Math.sqrt(dx * dx + dy * dy);
-			if (dist <= radius) {
+			if (HelperFunctions.distance(p, position) <= radius) {
 				positionsInRadius.add(p);
 			}
 		}

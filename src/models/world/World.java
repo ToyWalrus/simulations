@@ -16,6 +16,7 @@ public class World {
 	private HashMap<Position, Food> food;
 	private HashBiMap<Position, Entity> entities;
 	private int worldWidth;
+
 	private int worldHeight;
 	private Random rand;
 
@@ -110,6 +111,14 @@ public class World {
 		}
 		
 		return entitiesInRadius;
+	}
+	
+	public int getWorldWidth() {
+		return worldWidth;
+	}
+
+	public int getWorldHeight() {
+		return worldHeight;
 	}
 	
 	private List<Position> getPositionsInRadius(Position position, double radius, Set<Position> keySet) {

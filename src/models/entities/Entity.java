@@ -3,6 +3,7 @@ package models.entities;
 import java.util.HashMap;
 
 import models.genes.Gene;
+import models.world.Food;
 import models.world.Position;
 import models.world.World;
 
@@ -21,8 +22,7 @@ public abstract class Entity {
 
 	public abstract Entity replicatePerfectly();
 
-	public void die() {
-	}
+	public void die() {}
 	
 	public EntityStats getStats() { return stats; }
 
@@ -37,5 +37,11 @@ public abstract class Entity {
 		}
 		genes.put(gene.getName(), gene);
 		return true;
+	}
+	
+	public void eatFood(Food food) {
+		stats.gainEnergy(food.getEnergy());
+		double hunger = stats.getHunger();
+		stats.setHunger(hunger + food.getNutrition());
 	}
 }

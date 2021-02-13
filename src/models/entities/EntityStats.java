@@ -2,8 +2,13 @@ package models.entities;
 
 public class EntityStats {
 	private double maxEnergy;
+	
+	// This variable goes from max to 0
 	private double energy;
 
+	// Each of these variables grow from 0 to 1,
+	// the higher the number, the larger the urge
+	// to sate it & bring it down
 	private double reproductiveUrge;
 	private double hunger;
 	private double thirst;
@@ -56,7 +61,11 @@ public class EntityStats {
 	}
 
 	public void setHunger(double hunger) {
-		this.hunger = hunger;
+		this.hunger = Math.max(0, hunger);
+	}
+	
+	public void getHungry(double amount) {
+		setHunger(hunger + amount);
 	}
 
 	public double getThirst() {
@@ -64,7 +73,11 @@ public class EntityStats {
 	}
 
 	public void setThirst(double thirst) {
-		this.thirst = thirst;
+		this.thirst = Math.max(0, thirst);
+	}
+	
+	public void getThirsty(double amount) {
+		setThirst(thirst + amount);
 	}
 
 }

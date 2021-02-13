@@ -9,8 +9,9 @@ public class Food {
 		nutrition = nutritionAmount;
 	}
 	
-	public Food fromTemplate(Food template) {
-		return new Food(template.energy, template.nutrition);
+	public Food(Food template) {
+		this.energy = template.energy;
+		this.nutrition = template.nutrition;
 	}
 	
 	public double getEnergy() { return energy; }

@@ -1,7 +1,7 @@
 package models.entities;
 
-import models.world.Position;
 import models.world.World;
+import systems.EntityBehavior;
 
 public class SimpleEntity extends Entity {
 	private double replicationChance;
@@ -24,14 +24,17 @@ public class SimpleEntity extends Entity {
 	}
 
 	@Override
-	public void die() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Position tick(World world, Position position) {
-		return position;
+	public void tick(World world) {
+		if (behavior == null) {
+			behavior = new EntityBehavior(world, this);
+		}
+		
+		double energyUsed = behavior.doEntityAction();		
+		boolean stillAlive = stats.useEnergy(energyUsed);
+		
+		if (!stillAlive) {
+			die();
+		}
 	}
 	
 	public double getReplicationChance() {

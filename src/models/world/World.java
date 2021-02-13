@@ -1,87 +1,95 @@
 package models.world;
 
-import com.google.common.collect.HashBiMap;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import interfaces.IObservable;
+import interfaces.IObserver;
 import models.entities.Entity;
 import util.HelperFunctions;
+import util.Pair;
 
-public class World {
+public class World implements IObservable {
 	private HashMap<Position, Food> food;
-	private HashBiMap<Position, Entity> entities;
+	private List<Entity> entities;
 	private int worldWidth;
-
 	private int worldHeight;
 	private Random rand;
 
-	public World(HashMap<Position, Food> foodLocations, Map<Position, Entity> entities, int width, int height) {
+	private Set<IObserver<World>> observers;
+
+	public World(HashMap<Position, Food> foodLocations, List<Entity> entities, int width, int height) {
 		this.food = foodLocations;
-		this.entities = HashBiMap.create(entities);
+		this.entities = entities;
 		worldWidth = width;
 		worldHeight = height;
 		rand = new Random(System.currentTimeMillis());
+		observers = new HashSet<IObserver<World>>();
 	}
 
 	public World(int width, int height) {
-		this(new HashMap<Position, Food>(), new HashMap<Position, Entity>(), width, height);
+		this(new HashMap<Position, Food>(), new ArrayList<Entity>(), width, height);
 	}
 	
+	public void setFood(HashMap<Position, Food> foods) {
+		this.food = foods;
+	}
+	
+	public void setEntities(List<Entity> entities) {
+		this.entities = entities;
+	}
+
 	public Map<Position, Food> getFood() {
 		return food;
 	}
 
-	public Set<Entity> getEntities() {
-		return entities.values();
+	public List<Entity> getEntities() {
+		return entities;
 	}
-	
+
 	public void worldTick(double foodSpawnChance) {
 		worldTick(foodSpawnChance, Integer.MAX_VALUE);
 	}
-	
-	public Position getEntityPosition(Entity e) {
-		return entities.inverse().get(e);		
-	}
-	
-	public void moveEntity(Entity e, double dx, double dy) {
-		Position origin = getEntityPosition(e);
-		if (origin == null) return;
+
+	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
+		Set<Entity> deadEntities = new HashSet<Entity>();
 		
-		double x = HelperFunctions.clamp(origin.x + dx, 0, worldWidth);
-		double y = HelperFunctions.clamp(origin.y + dy, 0, worldHeight);
-		Position newPos = new Position(x, y);
-		
-		if (!entities.remove(origin, e)) {
-			System.err.println("Tried removing an entity from a place where it wasn't!");
+		for (Entity e : entities) {
+			e.tick(this);
+			if (e.isDead()) {
+				deadEntities.add(e);
+			}
 		}
 		
-		while (entities.containsKey(newPos)) {
-			newPos = new Position(newPos.x + 0.1, newPos.y + 0.1);
-		}	
-		entities.put(newPos, e);
+		entities.removeAll(deadEntities);
+		spawnFood(foodSpawnChance, maxFoodAllowed);
+
+		updateObservers();
 	}
 	
-	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
-		if (foodSpawnChance <= 0) return;		
-		
+	private void spawnFood(double foodSpawnChance, int maxFoodAllowed) {
+		if (foodSpawnChance <= 0)
+			return;
+
 		for (int x = 0; x < worldWidth; ++x) {
 			for (int y = 0; y < worldHeight; ++y) {
 				if (rand.nextDouble() < foodSpawnChance) {
 					food.put(new Position(x, y), new Food(100, 1));
 				}
-				
+
 				if (food.size() >= maxFoodAllowed) {
 					return;
 				}
 			}
 		}
 	}
-	
+
 	public void removeFood(Food foodToRemove) {
 		for (Position p : food.keySet()) {
 			if (food.get(p) == foodToRemove) {
@@ -91,28 +99,29 @@ public class World {
 		}
 	}
 
-	public List<Food> getFoodInRadius(Position position, double radius) {
-		List<Position> positionsInRadius = getPositionsInRadius(position, radius, food.keySet());		
-		List<Food> foods = new ArrayList<Food>();
-		
+	/**
+	 * Gets the foods in the world inside the given radius, centered at position
+	 * 
+	 * @param position
+	 * @param radius
+	 * @return A list of foods, ordered by distance (closest first)
+	 */
+	public List<Pair<Position, Food>> getFoodInRadius(Position position, double radius) {
+		List<Position> positionsInRadius = getPositionsInRadius(position, radius, food.keySet());
+		List<Pair<Position, Food>> foods = new ArrayList<Pair<Position, Food>>();
+
 		for (Position p : positionsInRadius) {
-			foods.add(food.get(p));
+			foods.add(new Pair<Position, Food>(p, food.get(p)));
 		}
-		
+
 		return foods;
 	}
-	
+
 	public List<Entity> getEntitiesInRadius(Position position, double radius) {
-		List<Position> positionsInRadius = getPositionsInRadius(position, radius, entities.keySet());
-		List<Entity> entitiesInRadius = new ArrayList<Entity>();
-		
-		for (Position p : positionsInRadius) {
-			entitiesInRadius.add(entities.get(p));
-		}
-		
-		return entitiesInRadius;
+		return entities.stream().filter(e -> isInCircle(position, radius, e.getPosition()))
+				.collect(Collectors.toList());
 	}
-	
+
 	public int getWorldWidth() {
 		return worldWidth;
 	}
@@ -120,14 +129,46 @@ public class World {
 	public int getWorldHeight() {
 		return worldHeight;
 	}
-	
-	private List<Position> getPositionsInRadius(Position position, double radius, Set<Position> keySet) {
+
+	/**
+	 * Returns all of the positions within keySet that are in the radius centered at
+	 * origin
+	 * 
+	 * @param origin
+	 * @param radius
+	 * @param keySet
+	 * @return A sorted list of positions (closest first)
+	 */
+	private List<Position> getPositionsInRadius(Position origin, double radius, Iterable<Position> keySet) {
 		List<Position> positionsInRadius = new ArrayList<Position>();
 		for (Position p : keySet) {
-			if (HelperFunctions.distance(p, position) <= radius) {
+			if (isInCircle(origin, radius, p)) {
 				positionsInRadius.add(p);
 			}
 		}
-		return positionsInRadius;
+		return positionsInRadius.stream()
+				.sorted((a, b) -> HelperFunctions.distance(origin, a) < HelperFunctions.distance(origin, b) ? -1 : 1)
+				.collect(Collectors.toList());
+	}
+
+	private boolean isInCircle(Position origin, double radius, Position position) {
+		return HelperFunctions.distance(origin, position) <= radius;
+	}
+
+	@Override
+	public void updateObservers() {
+		for (IObserver<World> observer : observers) {
+			observer.update(this);
+		}
+	}
+
+	@Override
+	public void registerObserver(IObserver<?> observer) {
+		observers.add((IObserver<World>) observer);
+	}
+
+	@Override
+	public void deRegisterObserver(IObserver<?> observer) {
+		observers.remove((IObserver<World>) observer);
 	}
 }

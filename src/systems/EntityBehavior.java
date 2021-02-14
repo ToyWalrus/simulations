@@ -3,6 +3,8 @@ package systems;
 import java.util.List;
 import java.util.Random;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import models.entities.Entity;
 import models.entities.EntityStats;
 import models.genes.*;
@@ -13,11 +15,14 @@ import util.HelperFunctions;
 import util.Pair;
 
 public class EntityBehavior {
-	private World world;
 	private Entity entity;
 	private Position previousPosition;
-	private int ticksSincePerformedLastAction;
 	private int ticksToWaitBetweenActions;
+
+	@VisibleForTesting
+	public int ticksSincePerformedLastAction;
+	@VisibleForTesting
+	public World world;
 
 	public EntityBehavior(World world, Entity entity) {
 		this.world = world;
@@ -46,12 +51,7 @@ public class EntityBehavior {
 
 		Position originalPosition = entity.getPosition();
 
-		EntityStats stats = entity.getStats();
-		double hunger = stats.getHunger();
-//		double thirst = stats.getThirst();
-//		double repro = stats.getReproductiveUrge();
-
-		if (hunger > .5) {
+		if (entity.isHungry()) {
 			List<Pair<Position, Food>> food = world.getFoodInRadius(entity.getPosition(),
 					entity.getGene(AwarenessGene.name).getValue());
 
@@ -75,14 +75,14 @@ public class EntityBehavior {
 		Position newPosition = entity.getPosition();
 		Gene speedGene = entity.getGene(SpeedGene.name);
 		double distTraveled = originalPosition.distanceTo(newPosition);
-		double speedUsed = distTraveled / speedGene.getValue();
 
 		previousPosition = newPosition;
 		ticksSincePerformedLastAction = 0;
-		return speedUsed * speedGene.getCostPerTick();
+		return distTraveled * speedGene.getCostPerTick();
 	}
 
-	private boolean isCloseEnoughToEat(Position target) {
+	@VisibleForTesting
+	public boolean isCloseEnoughToEat(Position target) {
 		// If entity is closer to the target than how far they would move
 		// based on their speed, they can eat the food
 		Position currentPosition = entity.getPosition();
@@ -93,21 +93,23 @@ public class EntityBehavior {
 		return distToTarget < distToMove;
 	}
 
-	private Position getNewEntityPositionTowardTarget(Position target) {
+	@VisibleForTesting
+	public Position getNewEntityPositionTowardTarget(Position target) {
 		Position origin = entity.getPosition();
 		double speed = entity.getGene(SpeedGene.name).getValue();
-		
+
 		double dx = origin.x - target.x;
 		double dy = origin.y - target.y;
 
 		double angle = Math.atan2(dy, dx);
-		
+
 		return getNewEntityPositionFromAngle(angle, speed);
 	}
-	
-	private Position getNewEntityPositionFromAngle(double angle, double speed) {
+
+	@VisibleForTesting
+	public Position getNewEntityPositionFromAngle(double angle, double speed) {
 		Position origin = entity.getPosition();
-		
+
 		double normalizedY = Math.sin(angle);
 		double normalizedX = Math.cos(angle);
 
@@ -115,7 +117,8 @@ public class EntityBehavior {
 				world.getWorldHeight());
 	}
 
-	private void wander() {
+	@VisibleForTesting
+	public void wander() {
 		double wanderSpeed = entity.getGene(SpeedGene.name).getValue() * .75;
 		Position currentPosition = entity.getPosition();
 		double angle = 0;
@@ -128,7 +131,7 @@ public class EntityBehavior {
 			angle = Math.atan2(dy, dx);
 		}
 
-		Position newPosition = getNewEntityPositionFromAngle(angle, wanderSpeed);		
+		Position newPosition = getNewEntityPositionFromAngle(angle, wanderSpeed);
 		entity.setPosition(newPosition);
 	}
 }

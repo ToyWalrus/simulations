@@ -2,7 +2,7 @@ package models.entities;
 
 public class EntityStats {
 	private double maxEnergy;
-	
+
 	// This variable goes from max to 0
 	private double energy;
 
@@ -13,8 +13,17 @@ public class EntityStats {
 	private double hunger;
 	private double thirst;
 
+	private double hungerThreshold;
+	private double thirstThreshold;
+
 	public EntityStats(double maxEnergy) {
-		this.maxEnergy = this.energy = maxEnergy;
+		this(maxEnergy, .5, .5);
+	}
+
+	public EntityStats(double maxEnergy, double hungerThreshold, double thirstThreshold) {
+		this.maxEnergy = maxEnergy;
+		this.hungerThreshold = hungerThreshold;
+		this.thirstThreshold = thirstThreshold;
 	}
 
 	/**
@@ -31,7 +40,7 @@ public class EntityStats {
 		}
 		return true;
 	}
-	
+
 	public void gainEnergy(double amount) {
 		energy = Math.min(energy + amount, maxEnergy);
 	}
@@ -63,7 +72,7 @@ public class EntityStats {
 	public void setHunger(double hunger) {
 		this.hunger = Math.max(0, hunger);
 	}
-	
+
 	public void getHungry(double amount) {
 		setHunger(hunger + amount);
 	}
@@ -75,9 +84,24 @@ public class EntityStats {
 	public void setThirst(double thirst) {
 		this.thirst = Math.max(0, thirst);
 	}
-	
+
 	public void getThirsty(double amount) {
 		setThirst(thirst + amount);
 	}
 
+	public double getHungerThreshold() {
+		return hungerThreshold;
+	}
+
+	public void setHungerThreshold(double hungerThreshold) {
+		this.hungerThreshold = hungerThreshold;
+	}
+
+	public double getThirstThreshold() {
+		return thirstThreshold;
+	}
+
+	public void setThirstThreshold(double thirstThreshold) {
+		this.thirstThreshold = thirstThreshold;
+	}
 }

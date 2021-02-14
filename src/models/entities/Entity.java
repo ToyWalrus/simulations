@@ -48,6 +48,14 @@ public abstract class Entity {
 	public double thirstGainPerTick() { return 0.02; }
 	
 	public boolean isDead() { return stats.getEnergy() <= 0 || stats.getHunger() >= 1 || stats.getThirst() >= 1; }
+	
+	public boolean isHungry() {
+		return stats.getHunger() >= stats.getHungerThreshold();
+	}
+	
+	public boolean isThirsty() {
+		return stats.getThirst() >= stats.getThirstThreshold();
+	}
 
 	public Gene getGene(String geneName) {
 		return genes.get(geneName);

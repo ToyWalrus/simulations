@@ -16,13 +16,14 @@ import util.Pair;
 
 public class EntityBehavior {
 	private Entity entity;
-	private Position previousPosition;
 	private int ticksToWaitBetweenActions;
 
 	@VisibleForTesting
 	public int ticksSincePerformedLastAction;
 	@VisibleForTesting
 	public World world;
+	@VisibleForTesting
+	public Position previousPosition;
 
 	public EntityBehavior(World world, Entity entity) {
 		this.world = world;
@@ -98,8 +99,8 @@ public class EntityBehavior {
 		Position origin = entity.getPosition();
 		double speed = entity.getGene(SpeedGene.name).getValue();
 
-		double dx = origin.x - target.x;
-		double dy = origin.y - target.y;
+		double dx = target.x - origin.x;
+		double dy = target.y - origin.y;
 
 		double angle = Math.atan2(dy, dx);
 

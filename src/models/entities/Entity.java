@@ -70,6 +70,15 @@ public abstract class Entity {
 		return true;
 	}
 	
+	public boolean updateGene(String geneName, Gene updatedGene) {
+		if (!genes.containsKey(geneName)) {
+			System.out.println("Cannot update a gene that was never set! "  + geneName);
+			return false;
+		}
+		genes.put(geneName, updatedGene);
+		return true;
+	}
+	
 	public void eatFood(Food food) {
 		stats.gainEnergy(food.getEnergy());
 		double hunger = stats.getHunger();

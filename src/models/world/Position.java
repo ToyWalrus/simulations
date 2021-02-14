@@ -57,11 +57,7 @@ public class Position {
 		if (getClass() != obj.getClass())
 			return false;
 		Position other = (Position) obj;
-		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
-			return false;
-		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
-			return false;
-		return true;
+		return HelperFunctions.almost(x, other.x) && HelperFunctions.almost(y, other.y);
 	}
 	
 	@Override

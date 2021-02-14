@@ -62,10 +62,28 @@ public class Simulator implements ActionListener {
 		}
 	}
 
+	/**
+	 * Start the simulation.
+	 */
+	public void startSimulation() {
+		startSimulation(-1);
+	}
+
+	/**
+	 * Start the simulation.
+	 * 
+	 * @param numIterations Run for this many ticks.
+	 */
 	public void startSimulation(int numIterations) {
 		startSimulation(numIterations, numIterations + 1);
 	}
 
+	/**
+	 * Start the simulation
+	 * 
+	 * @param numIterations  Run for this many ticks.
+	 * @param notifyInterval Print to console every X ticks.
+	 */
 	public void startSimulation(int numIterations, int notifyInterval) {
 		totalIterations = numIterations;
 		currentIteration = totalIterations;
@@ -77,18 +95,18 @@ public class Simulator implements ActionListener {
 		if (timer.isRunning()) {
 			timer.stop();
 		}
-		
+
 		setTickDelay(timer.getDelay());
-		
+
 		for (ISimulation sim : simulations) {
 			sim.reset();
 		}
 	}
-	
+
 	public void pauseSimulation() {
 		timer.stop();
 	}
-	
+
 	public void resumeSimulation() {
 		if (timer != null) {
 			timer.start();
@@ -97,7 +115,7 @@ public class Simulator implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (currentIteration <= 0) {
+		if (currentIteration <= 0 && totalIterations != -1) {
 			timer.stop();
 			return;
 		}

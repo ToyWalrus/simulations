@@ -56,7 +56,7 @@ public class Main {
 
 		frame.setVisible(true);
 		
-		simulator.startSimulation(1000);
+		simulator.startSimulation();
 	}
 
 	private static Simulator setupSimulator(WorldDrawer worldDrawer, int worldWidth, int worldHeight) {

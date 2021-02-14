@@ -20,6 +20,7 @@ import util.HelperFunctions;
 import util.Pair;
 
 class EntityBehaviorTest {
+	private double wanderSpeedModifier = .75;
 	private EntityBehavior behavior;
 	private Entity entity;
 
@@ -95,7 +96,6 @@ class EntityBehaviorTest {
 	@Test
 	@DisplayName("doEntityAction() - Returns the correct amount of energy used if wandering")
 	void testWanderEnergy() {
-		double wanderSpeedModifier = .75;
 		double speed = entity.getGene(SpeedGene.name).getValue();
 		double speedCostPerTick = entity.getGene(SpeedGene.name).getCostPerTick();
 		double unitLength = 1;
@@ -150,6 +150,21 @@ class EntityBehaviorTest {
 			Position newPosition = behavior.getNewEntityPositionTowardTarget(targets.get(i));
 
 			assertEquals(newPosition, expectedPositions.get(i));
+		}
+	}
+	
+	@Test
+	@DisplayName("wander() - Entity wanders in the same general direction over multiple calls")
+	void testWanderInSameDirection() {
+		double speed = 1;
+		entity.updateGene(SpeedGene.name, new SpeedGene(0, speed, .01));
+		resetEntityPosition();
+		
+		behavior.previousPosition = new Position(51, 50); // going left
+		
+		for (int i = 0; i < 10; ++i) {
+			behavior.wander();
+			assertEquals(entity.getPosition(), behavior.previousPosition.offset(-speed * wanderSpeedModifier, 0));
 		}
 	}
 

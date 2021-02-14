@@ -66,6 +66,8 @@ public class EntityBehavior {
 				} else {
 					entity.setPosition(getNewEntityPositionTowardTarget(target));
 				}
+				
+				previousPosition = entity.getPosition();
 			} else {
 				wander();
 			}
@@ -77,7 +79,6 @@ public class EntityBehavior {
 		Gene speedGene = entity.getGene(SpeedGene.name);
 		double distTraveled = originalPosition.distanceTo(newPosition);
 
-		previousPosition = newPosition;
 		ticksSincePerformedLastAction = 0;
 		return distTraveled * speedGene.getCostPerTick();
 	}
@@ -133,6 +134,7 @@ public class EntityBehavior {
 		}
 
 		Position newPosition = getNewEntityPositionFromAngle(angle, wanderSpeed);
+		previousPosition = currentPosition;
 		entity.setPosition(newPosition);
 	}
 }

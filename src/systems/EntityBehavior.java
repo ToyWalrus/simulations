@@ -63,6 +63,7 @@ public class EntityBehavior {
 				if (isCloseEnoughToEat(target)) {
 					entity.eatFood(foodToEat);
 					world.removeFood(foodToEat);
+					ticksSincePerformedLastAction = 0;
 				} else {
 					entity.setPosition(getNewEntityPositionTowardTarget(target));
 				}
@@ -79,7 +80,6 @@ public class EntityBehavior {
 		Gene speedGene = entity.getGene(SpeedGene.name);
 		double distTraveled = originalPosition.distanceTo(newPosition);
 
-		ticksSincePerformedLastAction = 0;
 		return distTraveled * speedGene.getCostPerTick();
 	}
 
@@ -92,7 +92,7 @@ public class EntityBehavior {
 		double distToTarget = currentPosition.distanceTo(target);
 		double distToMove = currentPosition.distanceTo(wouldMoveTo);
 
-		return distToTarget < distToMove;
+		return distToTarget <= distToMove;
 	}
 
 	@VisibleForTesting

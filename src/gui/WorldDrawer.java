@@ -17,7 +17,7 @@ import interfaces.IObserver;
 public class WorldDrawer extends JPanel implements IObserver<World> {
 	private World world;
 	private int panelWidth;
-	private int panelHeight;
+	private int panelHeight;	
 	
 	public WorldDrawer(int panelWidth, int panelHeight, World world) {
 		this(panelWidth, panelHeight);
@@ -38,18 +38,20 @@ public class WorldDrawer extends JPanel implements IObserver<World> {
 	}
 
 	public void paint(Graphics g) {
-		super.paint(g);
-		
+		super.paint(g);		
 		if (world == null) return;
+		
+		double xScale = panelWidth / world.getWorldWidth();
+		double yScale = panelHeight / world.getWorldHeight();
 
 		for (Map.Entry<Position, Food> entry : world.getFood().entrySet()) {
 			PositionInt panelPoint = worldPointToPanelPoint(entry.getKey());
-			FoodDrawer.draw(g, entry.getValue(), panelPoint);
+			FoodDrawer.draw(g, entry.getValue(), panelPoint, xScale, yScale);
 		}
 
 		for (Entity entity : world.getEntities()) {
 			PositionInt panelPoint = worldPointToPanelPoint(entity.getPosition());
-			EntityDrawer.draw(g, entity, panelPoint, true);
+			EntityDrawer.draw(g, entity, panelPoint, xScale, yScale, true);
 		}
 	}
 
@@ -66,7 +68,8 @@ public class WorldDrawer extends JPanel implements IObserver<World> {
 
 	@Override
 	public void update(World updatedWorld) {
-		world = updatedWorld; // probably redundant
 		this.repaint();
 	}
+	
+	public World getWorld() { return world; }
 }

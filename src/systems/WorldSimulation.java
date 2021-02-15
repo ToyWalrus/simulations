@@ -67,8 +67,8 @@ public class WorldSimulation implements ISimulation {
 			double y = rand.nextDouble() * (double)height;			
 			entity.setPosition(new Position(x, y));
 			
-			entity.addGene(new SpeedGene(0, .6, .01));
-			entity.addGene(new AwarenessGene(0, 50, 0));
+			entity.addGene(new SpeedGene(0, .6, 0.01));
+			entity.addGene(new AwarenessGene(0, 10, 0.001));
 			
 			entities.add(entity);
 		}

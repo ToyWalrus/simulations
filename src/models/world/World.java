@@ -36,11 +36,11 @@ public class World implements IObservable {
 	public World(int width, int height) {
 		this(new HashMap<Position, Food>(), new ArrayList<Entity>(), width, height);
 	}
-	
+
 	public void setFood(HashMap<Position, Food> foods) {
 		this.food = foods;
 	}
-	
+
 	public void setEntities(List<Entity> entities) {
 		this.entities = entities;
 	}
@@ -54,38 +54,39 @@ public class World implements IObservable {
 	}
 
 	public void worldTick(double foodSpawnChance) {
-		worldTick(foodSpawnChance, Integer.MAX_VALUE);
+		worldTick(foodSpawnChance, 200);
 	}
 
 	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
 		Set<Entity> deadEntities = new HashSet<Entity>();
-		
+
 		for (Entity e : entities) {
 			e.tick(this);
 			if (e.isDead()) {
 				deadEntities.add(e);
 			}
 		}
-		
+
 		entities.removeAll(deadEntities);
-		spawnFood(foodSpawnChance, maxFoodAllowed);
+		spawnFood(foodSpawnChance, maxFoodAllowed, 5);
 
 		updateObservers();
 	}
-	
-	private void spawnFood(double foodSpawnChance, int maxFoodAllowed) {
-		if (foodSpawnChance <= 0)
+
+	// This will spawn food up to the max amount allowed or 
+	// maxFoodSpawnedPerTick if the foodSpawnChance passes during this tick
+	private void spawnFood(double foodSpawnChance, int maxFoodAllowed, int maxFoodSpawnedPerTick) {
+		if (foodSpawnChance <= 0 || foodSpawnChance > rand.nextDouble())
 			return;
-
-		for (int x = 0; x < worldWidth; ++x) {
-			for (int y = 0; y < worldHeight; ++y) {
-				if (rand.nextDouble() < foodSpawnChance) {
-					food.put(new Position(x, y), new Food(100, 1));
-				}
-
-				if (food.size() >= maxFoodAllowed) {
-					return;
-				}
+		
+		int foodSpawned = 0;
+		
+		while (food.size() < maxFoodAllowed && foodSpawned <= maxFoodSpawnedPerTick) {
+			double x = Math.round(rand.nextDouble() * worldWidth);
+			double y = Math.round(rand.nextDouble() * worldHeight);
+			boolean foodWasSpawned = food.putIfAbsent(new Position(x, y), new Food(100, 1)) == null; // TODO make some sort of FoodFactory
+			if (foodWasSpawned) {
+				foodSpawned++;
 			}
 		}
 	}

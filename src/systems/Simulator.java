@@ -129,7 +129,7 @@ public class Simulator implements ActionListener {
 			sim.tick();
 		}
 
-		if (currentIteration % notificationFrequency == 0) {
+		if (totalIterations > 0 && currentIteration % notificationFrequency == 0) {
 			System.out.println("Iteration #" + (totalIterations - currentIteration) + "...");
 		}
 	}

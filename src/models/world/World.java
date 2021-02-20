@@ -21,6 +21,7 @@ public class World implements IObservable {
 	private int worldWidth;
 	private int worldHeight;
 	private Random rand;
+	private FoodFactory foodFactory;
 
 	private Set<IObserver<World>> observers;
 
@@ -31,10 +32,15 @@ public class World implements IObservable {
 		worldHeight = height;
 		rand = new Random(System.currentTimeMillis());
 		observers = new HashSet<IObserver<World>>();
+		foodFactory = new FoodFactory(Food.createFullyGrown(100, 1));
 	}
 
 	public World(int width, int height) {
 		this(new HashMap<Position, Food>(), new ArrayList<Entity>(), width, height);
+	}
+	
+	public void setFoodFactory(FoodFactory factory) {
+		this.foodFactory = factory;
 	}
 
 	public void setFood(HashMap<Position, Food> foods) {
@@ -84,7 +90,7 @@ public class World implements IObservable {
 		while (food.size() < maxFoodAllowed && foodSpawned <= maxFoodSpawnedPerTick) {
 			double x = Math.round(rand.nextDouble() * worldWidth);
 			double y = Math.round(rand.nextDouble() * worldHeight);
-			boolean foodWasSpawned = food.putIfAbsent(new Position(x, y), new Food(100, 1)) == null; // TODO make some sort of FoodFactory
+			boolean foodWasSpawned = food.putIfAbsent(new Position(x, y), foodFactory.create()) == null;
 			if (foodWasSpawned) {
 				foodSpawned++;
 			}

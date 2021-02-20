@@ -1,5 +1,6 @@
 package models.entities;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import models.genes.Gene;
@@ -21,12 +22,12 @@ public abstract class Entity {
 
 	public abstract void tick(World world);
 
-	public abstract Entity replicate();
+	public abstract Entity reproduce(Entity other);
 
 	public abstract Entity replicatePerfectly();
 
 	public void die() {
-		String cause = "";
+		String cause = "(?)";
 		
 		if (stats.getHunger() >= 1) cause = "hunger";
 		else if (stats.getThirst() >= 1) cause = "thirst";
@@ -47,6 +48,14 @@ public abstract class Entity {
 	
 	public double thirstGainPerTick() { return 0.02; }
 	
+	public double reproductiveUrgeGainPerTick() { return 0.01; }
+	
+	protected void updateNeeds() {
+		stats.increaseHunger(hungerGainPerTick());
+		stats.increaseThirst(thirstGainPerTick());
+		stats.increaseReproductiveUrge(reproductiveUrgeGainPerTick());
+	}
+	
 	public boolean isDead() { return stats.getEnergy() <= 0 || stats.getHunger() >= 1 || stats.getThirst() >= 1; }
 	
 	public boolean isHungry() {
@@ -56,9 +65,15 @@ public abstract class Entity {
 	public boolean isThirsty() {
 		return stats.getThirst() >= stats.getThirstThreshold();
 	}
+	
+	public EntityStats.Need getCurrentNeed() { return stats.getCurrentNeed(); }
 
 	public Gene getGene(String geneName) {
 		return genes.get(geneName);
+	}
+	
+	public Collection<Gene> getAllGenes() {
+		return genes.values();
 	}
 
 	public boolean addGene(Gene gene) {
@@ -83,5 +98,10 @@ public abstract class Entity {
 		stats.gainEnergy(food.getEnergy());
 		double hunger = stats.getHunger();
 		stats.setHunger(hunger - food.getNutrition());
+	}
+	
+	public void drinkWater(double amount) {
+		double thirst = stats.getThirst();
+		stats.setThirst(thirst - amount);
 	}
 }

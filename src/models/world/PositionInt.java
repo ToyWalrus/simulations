@@ -1,5 +1,10 @@
 package models.world;
 
+/**
+ * Generally the PositionInt will refer to screen space
+ * rather than world space, since the drawing commands
+ * all take ints as positions instead of doubles.
+ */
 public class PositionInt {
 	public final int x;
 	public final int y;

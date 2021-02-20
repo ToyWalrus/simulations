@@ -14,12 +14,13 @@ public class SimpleEntity extends Entity {
 	}
 
 	@Override
-	public Entity replicate() {
+	public Entity reproduce(Entity other) {
 		return replicatePerfectly();
 	}
 
 	@Override
 	public Entity replicatePerfectly() {
+		stats.setReproductiveUrge(0);
 		return new SimpleEntity(replicationChance, deathChance);
 	}
 
@@ -30,9 +31,10 @@ public class SimpleEntity extends Entity {
 		}
 		
 		double energyUsed = behavior.doEntityAction();		
-		boolean stillAlive = stats.useEnergy(energyUsed);
-		
-		if (!stillAlive) {
+		stats.useEnergy(energyUsed);
+		updateNeeds();
+				
+		if (isDead()) {
 			die();
 		}
 	}

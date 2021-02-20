@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import models.entities.Entity;
 import models.entities.EntityStats;
 import models.genes.AwarenessGene;
+import models.genes.SizeGene;
 import models.world.PositionInt;
 
 public class EntityDrawer {
@@ -19,7 +20,7 @@ public class EntityDrawer {
 		g.setColor(new Color(0, 0, 255));
 
 		// get size
-		int size = 8;
+		int size = (int) Math.round(entity.getGene(SizeGene.name).getValue() * 8.0);
 		int sizeX = (int) Math.round(size * xScale);
 		int sizeY = (int) Math.round(size * yScale);
 
@@ -34,16 +35,17 @@ public class EntityDrawer {
 			EntityStats stats = entity.getStats();
 			double energy = stats.getEnergy() / (double) 1;
 			double hunger = stats.getHunger() / (double) 1;
-			double thirst = stats.getThirst() / (double) 1;
+//			double thirst = stats.getThirst() / (double) 1;
 
 			int barSpacing = sizeY / 3 + 2;
 			int xPos = drawCenter.x - (barLength / 2);
 			int yPos = drawCenter.y - (sizeY / 2);
 
-//			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing), barLength, energy, new Color(194, 178, 4));
+			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing), barLength, energy, xScale,
+					new Color(194, 178, 4));
 			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 2), barLength, hunger, xScale,
 					new Color(29, 194, 4));
-//			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 3), barLength, thirst, Color.cyan);
+//			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 3), barLength, thirst, xScale, Color.cyan);
 
 			int awarenessRadius = (int) Math.round(entity.getGene(AwarenessGene.name).getValue());
 			drawAwarenessRadius(g, drawCenter, (int) Math.round(awarenessRadius * xScale),

@@ -8,8 +8,7 @@ import interfaces.ISimulation;
 import interfaces.ITracker;
 import models.entities.Entity;
 import models.entities.HungerOnlyEntity;
-import models.genes.AwarenessGene;
-import models.genes.SpeedGene;
+import models.genes.*;
 import models.world.Position;
 import models.world.World;
 
@@ -67,8 +66,9 @@ public class WorldSimulation implements ISimulation {
 			double y = rand.nextDouble() * (double)height;			
 			entity.setPosition(new Position(x, y));
 			
-			entity.addGene(new SpeedGene(0, .6, 0.01));
-			entity.addGene(new AwarenessGene(0, 10, 0.001));
+			entity.addGene(new SpeedGene(0, .6));
+			entity.addGene(new AwarenessGene(0, 10));
+			entity.addGene(new SizeGene(0, 1));
 			
 			entities.add(entity);
 		}

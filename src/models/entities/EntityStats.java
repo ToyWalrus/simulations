@@ -1,9 +1,17 @@
 package models.entities;
 
+import java.util.Random;
+
+import util.HelperFunctions;
+
 public class EntityStats {
+	public enum Need {
+		Food, Water, Reproduce
+	}
+
 	private double maxEnergy;
 
-	// This variable goes from max to 0
+	// This variable goes from maxEnergy to 0
 	private double energy;
 
 	// Each of these variables grow from 0 to 1,
@@ -24,6 +32,19 @@ public class EntityStats {
 		this.maxEnergy = maxEnergy;
 		this.hungerThreshold = hungerThreshold;
 		this.thirstThreshold = thirstThreshold;
+		
+		this.energy = maxEnergy;
+		this.hunger = 0;
+		this.thirst = 0;
+		this.reproductiveUrge = 0;
+	}
+	
+	/**
+	 * Get a fresh set of stats based on this object's maxs and thresholds.
+	 * @return A new EntityStats object with all stats set to their starting values.
+	 */
+	public EntityStats freshStats() {
+		return new EntityStats(this.maxEnergy, this.hungerThreshold, this.thirstThreshold);		
 	}
 
 	/**
@@ -39,6 +60,53 @@ public class EntityStats {
 			return false;
 		}
 		return true;
+	}
+
+	public Need getCurrentNeed() {
+		boolean hungry = hunger >= hungerThreshold;
+		boolean thirsty = thirst >= thirstThreshold;
+		if ((!hungry && !thirsty) || reproductiveUrge >= .9) {
+			return Need.Reproduce;
+		} else {
+			if (hunger > thirst)
+				return Need.Food;
+			return Need.Water;
+		}
+	}
+
+	/**
+	 * Creates a new EntityStats object, randomly selecting properties from between
+	 * this and the given mate stats.
+	 * 
+	 * @param mateStats The stats of the entity we're mating with.
+	 * @return An EntityStats object with properties shared between this and
+	 *         mateStats.
+	 */
+	public EntityStats createNewEntityStats(EntityStats mateStats) {
+		Random rand = new Random(System.currentTimeMillis());
+		double maxEnergy = rand.nextBoolean() ? this.maxEnergy : mateStats.maxEnergy;
+		double hungerThreshold = rand.nextBoolean() ? this.hungerThreshold : mateStats.hungerThreshold;
+		double thirstThreshold = rand.nextBoolean() ? this.thirstThreshold : mateStats.thirstThreshold;
+		return new EntityStats(maxEnergy, hungerThreshold, thirstThreshold);
+	}
+
+	/**
+	 * Creates a new EntityStats object, randomly selecting properties from between
+	 * this and the given mate stats and altering the final stat value between
+	 * +/- variationAmount.
+	 * 
+	 * @param mateStats The stats of the entity we're mating with.
+	 * @param variationAmount The possible variation amount for stats.
+	 * @return An EntityStats object with properties shared between this and
+	 *         mateStats.
+	 */
+	public EntityStats createNewEntityStats(EntityStats mateStats, double variationAmount) {
+		Random rand = new Random();
+		EntityStats stats = createNewEntityStats(mateStats);
+		stats.maxEnergy += HelperFunctions.randomRange(rand, -variationAmount, variationAmount);
+		stats.hungerThreshold += HelperFunctions.randomRange(rand, -variationAmount, variationAmount);
+		stats.thirstThreshold += HelperFunctions.randomRange(rand, -variationAmount, variationAmount);
+		return stats;
 	}
 
 	public void gainEnergy(double amount) {
@@ -62,7 +130,11 @@ public class EntityStats {
 	}
 
 	public void setReproductiveUrge(double reproductiveUrge) {
-		this.reproductiveUrge = reproductiveUrge;
+		this.reproductiveUrge = HelperFunctions.clamp(reproductiveUrge, 0, 1);
+	}
+
+	public void increaseReproductiveUrge(double amount) {
+		setReproductiveUrge(reproductiveUrge + amount);
 	}
 
 	public double getHunger() {
@@ -73,7 +145,7 @@ public class EntityStats {
 		this.hunger = Math.max(0, hunger);
 	}
 
-	public void getHungry(double amount) {
+	public void increaseHunger(double amount) {
 		setHunger(hunger + amount);
 	}
 
@@ -85,7 +157,7 @@ public class EntityStats {
 		this.thirst = Math.max(0, thirst);
 	}
 
-	public void getThirsty(double amount) {
+	public void increaseThirst(double amount) {
 		setThirst(thirst + amount);
 	}
 

@@ -63,7 +63,7 @@ public class PopulationSimulation implements ISimulation {
 		
 		for (SimpleEntity entity : entities) {
 			if (rand.nextDouble() < entity.getReplicationChance()) {
-				born.add((SimpleEntity) entity.replicate());
+				born.add((SimpleEntity) entity.reproduce(null));
 			}
 			if (rand.nextDouble() < entity.getDeathChance()) {
 				entity.die();

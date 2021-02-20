@@ -1,5 +1,8 @@
 package util;
 
+import java.awt.Color;
+import java.util.Random;
+
 import models.world.Position;
 
 public final class HelperFunctions {
@@ -13,6 +16,31 @@ public final class HelperFunctions {
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 
+	public static double randomRange(Random rand, double low, double high) {
+		double range = high - low;
+		double val = rand.nextDouble() * range;
+		return val + low;
+	}
+
+	public static int lerp(int a, int b, double f) {
+		return (int) Math.round(a + f * (a - b));
+	}
+
+	public static double lerp(double a, double b, double f) {
+		return a + f * (a - b);
+	}
+
+	public static Color lerp(Color c1, Color c2, double f) {
+		int r = clamp(lerp(c1.getRed(), c2.getRed(), f), 0, 255);
+		int g = clamp(lerp(c1.getGreen(), c2.getGreen(), f), 0, 255);
+		int b = clamp(lerp(c1.getBlue(), c2.getBlue(), f), 0, 255);
+		return new Color(r, g, b);
+	}
+
+	public static int clamp(int value, int min, int max) {
+		return Math.min(max, Math.max(value, min));
+	}
+	
 	public static double clamp(double value, double min, double max) {
 		return Math.min(max, Math.max(value, min));
 	}

@@ -52,35 +52,65 @@ public class EntityBehavior {
 
 		Position originalPosition = entity.getPosition();
 
-		if (entity.isHungry()) {
-			List<Pair<Position, Food>> food = world.getFoodInRadius(entity.getPosition(),
-					entity.getGene(AwarenessGene.name).getValue());
-
-			if (!food.isEmpty()) {
-				Position target = food.get(0).first;
-				Food foodToEat = food.get(0).second;
-
-				if (isCloseEnoughToEat(target)) {
-					entity.eatFood(foodToEat);
-					world.removeFood(foodToEat);
-					ticksSincePerformedLastAction = 0;
-				} else {
-					entity.setPosition(getNewEntityPositionTowardTarget(target));
-				}
-				
-				previousPosition = entity.getPosition();
-			} else {
-				wander();
-			}
-		} else {
-			wander();
+		switch(entity.getCurrentNeed()) {
+			case Food:
+				searchForFood();
+				break;
+			case Water:
+				searchForWater();
+				break;
+			case Reproduce:
+				searchForMate();
+				break;
 		}
 
+		return getTotalEnergyUsedDuringLastAction(originalPosition);
+	}
+	
+	private double getTotalEnergyUsedDuringLastAction(Position originalPosition) {
+		double energyUsed = 0;
+		
 		Position newPosition = entity.getPosition();
 		Gene speedGene = entity.getGene(SpeedGene.name);
 		double distTraveled = originalPosition.distanceTo(newPosition);
+		energyUsed += distTraveled * speedGene.getCostPerTick();
+		
+		for (Gene gene : entity.getAllGenes()) {
+			if (gene.getName() == SpeedGene.name) continue;
+			energyUsed += gene.getCostPerTick();
+		}
+		
+		return energyUsed;
+	}
+	
+	private void searchForFood() {
+		List<Pair<Position, Food>> food = world.getFoodInRadius(entity.getPosition(),
+				entity.getGene(AwarenessGene.name).getValue());
 
-		return distTraveled * speedGene.getCostPerTick();
+		if (!food.isEmpty()) {
+			Position target = food.get(0).first;
+			Food foodToEat = food.get(0).second;
+
+			if (isCloseEnoughToEat(target)) {
+				entity.eatFood(foodToEat);
+				world.removeFood(foodToEat);
+				ticksSincePerformedLastAction = 0;
+			} else {
+				entity.setPosition(getNewEntityPositionTowardTarget(target));
+			}
+			
+			previousPosition = entity.getPosition();
+		} else {
+			wander();
+		}
+	}
+	
+	private void searchForWater() {
+		wander(); // temporary
+	}
+	
+	private void searchForMate() {
+		wander(); // temporary
 	}
 
 	@VisibleForTesting

@@ -29,8 +29,8 @@ class EntityBehaviorTest {
 		World world = spy(new World(100, 100));
 
 		entity = new SimpleEntity(0, 0);
-		entity.addGene(new SpeedGene(0, 5, .01));
-		entity.addGene(new AwarenessGene(0, 10, 0.005));
+		entity.addGene(new SpeedGene(0, 5));
+		entity.addGene(new AwarenessGene(0, 10));
 		resetEntityPosition();
 
 		behavior = spy(new EntityBehavior(world, entity));
@@ -69,7 +69,7 @@ class EntityBehaviorTest {
 		assertEquals(entity.getPosition(), new Position(50, 50));
 
 		ArrayList<Pair<Position, Food>> defaultFood = new ArrayList<Pair<Position, Food>>();
-		defaultFood.add(new Pair<Position, Food>(entity.getPosition(), new Food(0, 0)));
+		defaultFood.add(new Pair<Position, Food>(entity.getPosition(), Food.createFullyGrown(0, 0)));
 		when(behavior.world.getFoodInRadius(any(Position.class), any(Double.class))).thenReturn(defaultFood);
 
 		behavior.doEntityAction();
@@ -138,7 +138,7 @@ class EntityBehaviorTest {
 	@DisplayName("getNewEntityPositionTowardTarget() - Correctly calculates the new position towards the given target")
 	void testGetPositionTowardTarget() {
 		double speed = 1;
-		entity.updateGene(SpeedGene.name, new SpeedGene(0, speed, .01));
+		entity.updateGene(SpeedGene.name, new SpeedGene(0, speed));
 		
 		List<Position> targets = List.of(new Position(55, 50), new Position(50, 55), new Position(45, 50), new Position(50, 45));
 		List<Position> expectedPositions = List.of(new Position(51, 50), new Position(50, 51), new Position(49, 50),
@@ -157,7 +157,7 @@ class EntityBehaviorTest {
 	@DisplayName("wander() - Entity wanders in the same general direction over multiple calls")
 	void testWanderInSameDirection() {
 		double speed = 1;
-		entity.updateGene(SpeedGene.name, new SpeedGene(0, speed, .01));
+		entity.updateGene(SpeedGene.name, new SpeedGene(0, speed));
 		resetEntityPosition();
 		
 		behavior.previousPosition = new Position(51, 50); // going left

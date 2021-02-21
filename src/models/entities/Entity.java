@@ -68,15 +68,15 @@ public abstract class Entity {
 	}
 
 	public double energySpentBeingIdle() {
-		return stats.getMaxEnergy() / 200.0;
+		return stats.getMaxEnergy() / 100.0;
 	}
 
 	public double hungerGainPerTick() {
-		return 0.005;
+		return 0.0025;
 	}
 
 	public double thirstGainPerTick() {
-		return 0.0075;
+		return 0.0025;
 	}
 
 	public double reproductiveUrgeGainPerTick() {

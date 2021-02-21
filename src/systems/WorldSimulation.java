@@ -11,6 +11,8 @@ import models.entities.Entity;
 import models.entities.EntityStats;
 import models.entities.HungerOnlyEntity;
 import models.genes.*;
+import models.world.Food;
+import models.world.FoodFactory;
 import models.world.Position;
 import models.world.World;
 
@@ -76,6 +78,7 @@ public class WorldSimulation implements ISimulation {
 		}
 		
 		world.setEntities(entities);
+		world.setFoodFactory(new FoodFactory(new Food(.01, .001, 100)));
 		
 		return new WorldSimulation(world);		
 	}

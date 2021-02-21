@@ -68,9 +68,12 @@ public class EntityStats {
 	}
 
 	public Need getCurrentNeed() {
-		boolean hungry = hunger >= hungerThreshold;
+		double reproHungerThreshold = hungerThreshold / 2;
+		boolean canReproBecauseNotHungry = hunger < reproHungerThreshold;
 		boolean thirsty = thirst >= thirstThreshold;
-		if ((!hungry && !thirsty && reproductiveUrge >= minReproductiveUrgeThreshold) || reproductiveUrge >= .9) {
+
+		if ((!thirsty && reproductiveUrge >= minReproductiveUrgeThreshold && canReproBecauseNotHungry)
+				|| reproductiveUrge >= .9) {
 			return Need.Reproduce;
 		} else {
 			if (hunger > thirst)

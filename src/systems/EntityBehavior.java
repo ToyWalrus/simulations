@@ -16,6 +16,7 @@ import util.Pair;
 
 public class EntityBehavior {
 	private Entity entity;
+	private Entity targetMate;
 	private int ticksToWaitBetweenActions;
 
 	@VisibleForTesting
@@ -52,7 +53,7 @@ public class EntityBehavior {
 
 		Position originalPosition = entity.getPosition();
 
-		switch(entity.getCurrentNeed()) {
+		switch (entity.getCurrentNeed()) {
 			case Food:
 				searchForFood();
 				break;
@@ -62,27 +63,30 @@ public class EntityBehavior {
 			case Reproduce:
 				searchForMate();
 				break;
+			default:
+				break;
 		}
 
 		return getTotalEnergyUsedDuringLastAction(originalPosition);
 	}
-	
+
 	private double getTotalEnergyUsedDuringLastAction(Position originalPosition) {
 		double energyUsed = 0;
-		
+
 		Position newPosition = entity.getPosition();
 		Gene speedGene = entity.getGene(SpeedGene.name);
 		double distTraveled = originalPosition.distanceTo(newPosition);
 		energyUsed += distTraveled * speedGene.getCostPerTick();
-		
+
 		for (Gene gene : entity.getAllGenes()) {
-			if (gene.getName() == SpeedGene.name) continue;
+			if (gene.getName() == SpeedGene.name)
+				continue;
 			energyUsed += gene.getCostPerTick();
 		}
-		
+
 		return energyUsed;
 	}
-	
+
 	private void searchForFood() {
 		List<Pair<Position, Food>> food = world.getFoodInRadius(entity.getPosition(),
 				entity.getGene(AwarenessGene.name).getValue());
@@ -91,30 +95,54 @@ public class EntityBehavior {
 			Position target = food.get(0).first;
 			Food foodToEat = food.get(0).second;
 
-			if (isCloseEnoughToEat(target)) {
+			if (isCloseEnoughToTarget(target)) {
 				entity.eatFood(foodToEat);
 				world.removeFood(foodToEat);
 				ticksSincePerformedLastAction = 0;
 			} else {
 				entity.setPosition(getNewEntityPositionTowardTarget(target));
 			}
-			
+
 			previousPosition = entity.getPosition();
 		} else {
 			wander();
 		}
 	}
-	
+
 	private void searchForWater() {
 		wander(); // temporary
 	}
-	
+
 	private void searchForMate() {
-		wander(); // temporary
+		if (targetMate == null) {
+			List<Entity> closeEntities = world.getEntitiesInRadius(entity.getPosition(),
+					entity.getGene(AwarenessGene.name).getValue());
+
+			if (!closeEntities.isEmpty()) {
+				// TODO do some sort of desirability check/availability check
+				targetMate = closeEntities.get(0);
+			}
+		}
+
+		if (targetMate != null) {
+			Position target = targetMate.getPosition();
+
+			if (isCloseEnoughToTarget(target)) {
+				world.addEntity(entity.reproduce(targetMate));
+				targetMate = null;
+				ticksSincePerformedLastAction = 0;
+			} else {
+				entity.setPosition(getNewEntityPositionTowardTarget(target));
+			}
+
+			previousPosition = entity.getPosition();
+		} else {
+			wander();
+		}
 	}
 
 	@VisibleForTesting
-	public boolean isCloseEnoughToEat(Position target) {
+	public boolean isCloseEnoughToTarget(Position target) {
 		// If entity is closer to the target than how far they would move
 		// based on their speed, they can eat the food
 		Position currentPosition = entity.getPosition();

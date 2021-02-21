@@ -23,11 +23,17 @@ public final class HelperFunctions {
 	}
 
 	public static int lerp(int a, int b, double f) {
-		return (int) Math.round(a + f * (a - b));
+		return (int) Math.round(a + f * (b - a));
 	}
 
 	public static double lerp(double a, double b, double f) {
-		return a + f * (a - b);
+		return a + f * (b - a);
+	}
+	
+	public static Position lerp(Position a, Position b, double f) {
+		double x = lerp(a.x, b.x, f);
+		double y = lerp(a.y, b.y, f);
+		return new Position(x, y);
 	}
 
 	public static Color lerp(Color c1, Color c2, double f) {

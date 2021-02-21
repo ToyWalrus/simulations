@@ -33,19 +33,21 @@ public class EntityDrawer {
 			int barLength = sizeX * 2;
 
 			EntityStats stats = entity.getStats();
-			double energy = stats.getEnergy() / (double) 1;
-			double hunger = stats.getHunger() / (double) 1;
-//			double thirst = stats.getThirst() / (double) 1;
+			double energy = stats.getEnergy() / stats.getMaxEnergy();
+			double hunger = stats.getHunger() / 1.0;
+			double thirst = stats.getThirst() / 1.0;
+			double reproUrge = stats.getReproductiveUrge() / 1.0;
 
 			int barSpacing = sizeY / 3 + 2;
 			int xPos = drawCenter.x - (barLength / 2);
 			int yPos = drawCenter.y - (sizeY / 2);
 
-			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing), barLength, energy, xScale,
+			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 1), barLength, energy, xScale,
 					new Color(194, 178, 4));
-			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 2), barLength, hunger, xScale,
+			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 2), barLength, reproUrge, xScale, Color.red);
+			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 3), barLength, hunger, xScale,
 					new Color(29, 194, 4));
-//			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 3), barLength, thirst, xScale, Color.cyan);
+			drawDebugBar(g, new PositionInt(xPos, yPos - barSpacing * 4), barLength, thirst, xScale, Color.cyan);
 
 			int awarenessRadius = (int) Math.round(entity.getGene(AwarenessGene.name).getValue());
 			drawAwarenessRadius(g, drawCenter, (int) Math.round(awarenessRadius * xScale),
@@ -55,7 +57,7 @@ public class EntityDrawer {
 
 	private static void drawDebugBar(Graphics g, PositionInt position, int length, double percentFull, double scale,
 			Color color) {
-		int height = (int) Math.round(4 * scale);
+		int height = (int) Math.round(3 * scale);
 
 		g.setColor(color);
 		g.fillRect(position.x, position.y, (int) Math.round((double) length * percentFull), height);

@@ -6,7 +6,7 @@ import util.HelperFunctions;
 
 public class EntityStats {
 	public enum Need {
-		Food, Water, Reproduce
+		Food, Water, Reproduce, None
 	}
 
 	private double maxEnergy;
@@ -23,28 +23,33 @@ public class EntityStats {
 
 	private double hungerThreshold;
 	private double thirstThreshold;
+	private double minReproductiveUrgeThreshold;
 
 	public EntityStats(double maxEnergy) {
-		this(maxEnergy, .5, .5);
+		this(maxEnergy, .5, .5, .45);
 	}
 
-	public EntityStats(double maxEnergy, double hungerThreshold, double thirstThreshold) {
+	public EntityStats(double maxEnergy, double hungerThreshold, double thirstThreshold,
+			double minReproductiveUrgeThreshold) {
 		this.maxEnergy = maxEnergy;
 		this.hungerThreshold = hungerThreshold;
 		this.thirstThreshold = thirstThreshold;
-		
+		this.minReproductiveUrgeThreshold = minReproductiveUrgeThreshold;
+
 		this.energy = maxEnergy;
 		this.hunger = 0;
 		this.thirst = 0;
 		this.reproductiveUrge = 0;
 	}
-	
+
 	/**
 	 * Get a fresh set of stats based on this object's maxs and thresholds.
+	 * 
 	 * @return A new EntityStats object with all stats set to their starting values.
 	 */
 	public EntityStats freshStats() {
-		return new EntityStats(this.maxEnergy, this.hungerThreshold, this.thirstThreshold);		
+		return new EntityStats(this.maxEnergy, this.hungerThreshold, this.thirstThreshold,
+				this.minReproductiveUrgeThreshold);
 	}
 
 	/**
@@ -65,7 +70,7 @@ public class EntityStats {
 	public Need getCurrentNeed() {
 		boolean hungry = hunger >= hungerThreshold;
 		boolean thirsty = thirst >= thirstThreshold;
-		if ((!hungry && !thirsty) || reproductiveUrge >= .9) {
+		if ((!hungry && !thirsty && reproductiveUrge >= minReproductiveUrgeThreshold) || reproductiveUrge >= .9) {
 			return Need.Reproduce;
 		} else {
 			if (hunger > thirst)
@@ -87,15 +92,15 @@ public class EntityStats {
 		double maxEnergy = rand.nextBoolean() ? this.maxEnergy : mateStats.maxEnergy;
 		double hungerThreshold = rand.nextBoolean() ? this.hungerThreshold : mateStats.hungerThreshold;
 		double thirstThreshold = rand.nextBoolean() ? this.thirstThreshold : mateStats.thirstThreshold;
-		return new EntityStats(maxEnergy, hungerThreshold, thirstThreshold);
+		return new EntityStats(maxEnergy, hungerThreshold, thirstThreshold, this.minReproductiveUrgeThreshold);
 	}
 
 	/**
 	 * Creates a new EntityStats object, randomly selecting properties from between
-	 * this and the given mate stats and altering the final stat value between
-	 * +/- variationAmount.
+	 * this and the given mate stats and altering the final stat value between +/-
+	 * variationAmount.
 	 * 
-	 * @param mateStats The stats of the entity we're mating with.
+	 * @param mateStats       The stats of the entity we're mating with.
 	 * @param variationAmount The possible variation amount for stats.
 	 * @return An EntityStats object with properties shared between this and
 	 *         mateStats.

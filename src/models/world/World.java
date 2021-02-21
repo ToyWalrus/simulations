@@ -51,6 +51,10 @@ public class World implements IObservable {
 		this.entities = entities;
 	}
 
+	public void addEntity(Entity entity) {
+		entities.add(entity);
+	}
+
 	public Map<Position, Food> getFood() {
 		return food;
 	}
@@ -63,18 +67,18 @@ public class World implements IObservable {
 		worldTick(foodSpawnChance, 200);
 	}
 
-	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
-		Set<Entity> deadEntities = new HashSet<Entity>();
+	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {		
+		List<Entity> currentEntities = new ArrayList<Entity>(entities);
 
-		for (Entity e : entities) {
+		for (Entity e : currentEntities) {
 			e.tick(this);
 			if (e.isDead()) {
-				deadEntities.add(e);
+				entities.remove(e);
 			}
 		}
-
-		entities.removeAll(deadEntities);
+		
 		spawnFood(foodSpawnChance, maxFoodAllowed, 5);
+		foodGrowthTick();
 
 		updateObservers();
 	}
@@ -94,6 +98,12 @@ public class World implements IObservable {
 			if (foodWasSpawned) {
 				foodSpawned++;
 			}
+		}
+	}
+	
+	private void foodGrowthTick() {
+		for (Food f : food.values()) {
+			f.growthTick();
 		}
 	}
 

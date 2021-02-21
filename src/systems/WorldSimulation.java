@@ -6,7 +6,9 @@ import java.util.Random;
 
 import interfaces.ISimulation;
 import interfaces.ITracker;
+import models.entities.BasicEntity;
 import models.entities.Entity;
+import models.entities.EntityStats;
 import models.entities.HungerOnlyEntity;
 import models.genes.*;
 import models.world.Position;
@@ -60,15 +62,15 @@ public class WorldSimulation implements ISimulation {
 		
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		for (int i = 0; i < 10; ++i) {
-			Entity entity = new HungerOnlyEntity();
+			Entity entity = new BasicEntity(new EntityStats(100));
 			
 			double x = rand.nextDouble() * (double)width;
 			double y = rand.nextDouble() * (double)height;			
 			entity.setPosition(new Position(x, y));
 			
-			entity.addGene(new SpeedGene(0, .6));
-			entity.addGene(new AwarenessGene(0, 10));
-			entity.addGene(new SizeGene(0, 1));
+			entity.addGene(new SpeedGene(0.1, .6));
+			entity.addGene(new AwarenessGene(0.25, 10));
+			entity.addGene(new SizeGene(0.1, 1));
 			
 			entities.add(entity);
 		}

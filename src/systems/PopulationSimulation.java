@@ -7,32 +7,32 @@ import java.util.Random;
 import interfaces.ISimulation;
 import interfaces.ITracker;
 import models.entities.Entity;
-import models.entities.SimpleEntity;
+import models.entities.PopulationTestEntity;
 
 public class PopulationSimulation implements ISimulation {
 	private List<ITracker> trackers;
-	private List<SimpleEntity> entities;
-	private List<SimpleEntity> initialPopulation;
+	private List<PopulationTestEntity> entities;
+	private List<PopulationTestEntity> initialPopulation;
 	private Entity baseEntity;
 	private double baseSpawnChance;
 	private Random rand;
 
-	public PopulationSimulation(List<SimpleEntity> basePopulation, double baseSpawnChance, Entity baseEntity) {
+	public PopulationSimulation(List<PopulationTestEntity> basePopulation, double baseSpawnChance, Entity baseEntity) {
 		this.initialPopulation = basePopulation;
 		this.baseSpawnChance = baseSpawnChance;
 		this.baseEntity = baseEntity;
 		this.trackers = new ArrayList<ITracker>();
-		this.entities = new ArrayList<SimpleEntity>(basePopulation);
+		this.entities = new ArrayList<PopulationTestEntity>(basePopulation);
 		
 		rand = new Random(System.currentTimeMillis() * (new Random().nextLong()));
 	}
 	
-	public PopulationSimulation(List<SimpleEntity> basePopulation) {
+	public PopulationSimulation(List<PopulationTestEntity> basePopulation) {
 		this(basePopulation, 0, null);
 	}
 	
-	public PopulationSimulation(double baseSpawnChance, SimpleEntity baseEntity) {
-		this(new ArrayList<SimpleEntity>(), baseSpawnChance, baseEntity);
+	public PopulationSimulation(double baseSpawnChance, PopulationTestEntity baseEntity) {
+		this(new ArrayList<PopulationTestEntity>(), baseSpawnChance, baseEntity);
 	}
 
 	public int getCurrentPopulation() {
@@ -53,17 +53,17 @@ public class PopulationSimulation implements ISimulation {
 
 	private void doBaseSpawn() {
 		if (baseSpawnChance > 0 && rand.nextDouble() <= baseSpawnChance) {
-			entities.add((SimpleEntity) baseEntity.replicatePerfectly());
+			entities.add((PopulationTestEntity) baseEntity.replicatePerfectly());
 		}
 	}
 	
 	private void doEntityTick() {
-		List<SimpleEntity> died = new ArrayList<SimpleEntity>();	
-		List<SimpleEntity> born = new ArrayList<SimpleEntity>();
+		List<PopulationTestEntity> died = new ArrayList<PopulationTestEntity>();	
+		List<PopulationTestEntity> born = new ArrayList<PopulationTestEntity>();
 		
-		for (SimpleEntity entity : entities) {
+		for (PopulationTestEntity entity : entities) {
 			if (rand.nextDouble() < entity.getReplicationChance()) {
-				born.add((SimpleEntity) entity.reproduce(null));
+				born.add((PopulationTestEntity) entity.reproduce(null));
 			}
 			if (rand.nextDouble() < entity.getDeathChance()) {
 				entity.die();
@@ -87,6 +87,6 @@ public class PopulationSimulation implements ISimulation {
 			tracker.reset();
 		}
 		entities.clear();
-		entities = new ArrayList<SimpleEntity>(initialPopulation); 
+		entities = new ArrayList<PopulationTestEntity>(initialPopulation); 
 	}
 }

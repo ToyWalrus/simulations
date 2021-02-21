@@ -28,7 +28,7 @@ class EntityBehaviorTest {
 	void beforeEach() {
 		World world = spy(new World(100, 100));
 
-		entity = new SimpleEntity(0, 0);
+		entity = new PopulationTestEntity(0, 0);
 		entity.addGene(new SpeedGene(0, 5));
 		entity.addGene(new AwarenessGene(0, 10));
 		resetEntityPosition();

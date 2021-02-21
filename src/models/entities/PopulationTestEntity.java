@@ -3,11 +3,11 @@ package models.entities;
 import models.world.World;
 import systems.EntityBehavior;
 
-public class SimpleEntity extends Entity {
+public class PopulationTestEntity extends Entity {
 	private double replicationChance;
 	private double deathChance;
 	
-	public SimpleEntity(double replicationChance, double deathChance) {
+	public PopulationTestEntity(double replicationChance, double deathChance) {
 		super(new EntityStats(100));
 		this.replicationChance = replicationChance;
 		this.deathChance = deathChance;
@@ -21,7 +21,7 @@ public class SimpleEntity extends Entity {
 	@Override
 	public Entity replicatePerfectly() {
 		stats.setReproductiveUrge(0);
-		return new SimpleEntity(replicationChance, deathChance);
+		return new PopulationTestEntity(replicationChance, deathChance);
 	}
 
 	@Override

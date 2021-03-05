@@ -64,21 +64,21 @@ public class WorldSimulation implements ISimulation {
 		
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		for (int i = 0; i < 10; ++i) {
-			Entity entity = new BasicEntity(new EntityStats(100));
+			Entity entity = new BasicEntity(new EntityStats(400));
 			
 			double x = rand.nextDouble() * (double)width;
 			double y = rand.nextDouble() * (double)height;			
 			entity.setPosition(new Position(x, y));
 			
 			entity.addGene(new SpeedGene(0.1, .6));
-			entity.addGene(new AwarenessGene(0.25, 10));
+			entity.addGene(new AwarenessGene(0.25, 20));
 			entity.addGene(new SizeGene(0.1, 1));
 			
 			entities.add(entity);
 		}
 		
 		world.setEntities(entities);
-		world.setFoodFactory(new FoodFactory(new Food(.01, .001, 100)));
+		world.setFoodFactory(new FoodFactory(new Food(.2, .005, 100)));
 		
 		return new WorldSimulation(world);		
 	}

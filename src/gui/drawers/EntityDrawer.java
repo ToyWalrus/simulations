@@ -67,6 +67,6 @@ public class EntityDrawer {
 
 	private static void drawAwarenessRadius(Graphics g, PositionInt position, int xRadius, int yRadius) {
 		g.setColor(new Color(179, 179, 179));
-		g.drawOval(position.x - xRadius / 2, position.y - yRadius / 2, xRadius * 2, yRadius * 2);
+		g.drawOval(position.x - xRadius, position.y - yRadius, xRadius * 2, yRadius * 2);
 	}
 }

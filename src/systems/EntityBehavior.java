@@ -116,7 +116,7 @@ public class EntityBehavior {
 	private void searchForMate() {
 		if (targetMate == null) {
 			List<Entity> closeEntities = world.getEntitiesInRadius(entity.getPosition(),
-					entity.getGene(AwarenessGene.name).getValue());
+					entity.getGene(AwarenessGene.name).getValue(), List.of(entity)); // exclude self from search
 
 			if (!closeEntities.isEmpty()) {
 				// TODO do some sort of desirability check/availability check

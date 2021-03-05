@@ -38,7 +38,7 @@ public class World implements IObservable {
 	public World(int width, int height) {
 		this(new HashMap<Position, Food>(), new ArrayList<Entity>(), width, height);
 	}
-	
+
 	public void setFoodFactory(FoodFactory factory) {
 		this.foodFactory = factory;
 	}
@@ -67,7 +67,7 @@ public class World implements IObservable {
 		worldTick(foodSpawnChance, 200);
 	}
 
-	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {		
+	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
 		List<Entity> currentEntities = new ArrayList<Entity>(entities);
 
 		for (Entity e : currentEntities) {
@@ -76,21 +76,21 @@ public class World implements IObservable {
 				entities.remove(e);
 			}
 		}
-		
+
 		spawnFood(foodSpawnChance, maxFoodAllowed, 5);
 		foodGrowthTick();
 
 		updateObservers();
 	}
 
-	// This will spawn food up to the max amount allowed or 
+	// This will spawn food up to the max amount allowed or
 	// maxFoodSpawnedPerTick if the foodSpawnChance passes during this tick
 	private void spawnFood(double foodSpawnChance, int maxFoodAllowed, int maxFoodSpawnedPerTick) {
 		if (foodSpawnChance <= 0 || foodSpawnChance > rand.nextDouble())
 			return;
-		
+
 		int foodSpawned = 0;
-		
+
 		while (food.size() < maxFoodAllowed && foodSpawned <= maxFoodSpawnedPerTick) {
 			double x = Math.round(rand.nextDouble() * worldWidth);
 			double y = Math.round(rand.nextDouble() * worldHeight);
@@ -100,7 +100,7 @@ public class World implements IObservable {
 			}
 		}
 	}
-	
+
 	private void foodGrowthTick() {
 		for (Food f : food.values()) {
 			f.growthTick();
@@ -136,6 +136,11 @@ public class World implements IObservable {
 
 	public List<Entity> getEntitiesInRadius(Position position, double radius) {
 		return entities.stream().filter(e -> isInCircle(position, radius, e.getPosition()))
+				.collect(Collectors.toList());
+	}
+
+	public List<Entity> getEntitiesInRadius(Position position, double radius, List<Entity> exclude) {
+		return getEntitiesInRadius(position, radius).stream().filter(e -> !exclude.contains(e))
 				.collect(Collectors.toList());
 	}
 

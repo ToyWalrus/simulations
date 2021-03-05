@@ -73,10 +73,10 @@ public class EntityStats {
 		boolean thirsty = thirst >= thirstThreshold;
 
 		if ((!thirsty && reproductiveUrge >= minReproductiveUrgeThreshold && canReproBecauseNotHungry)
-				|| reproductiveUrge >= .9) {
+				|| reproductiveUrge >= .95) {
 			return Need.Reproduce;
 		} else {
-			if (hunger > thirst)
+			if (hunger > thirst || energy < .25)
 				return Need.Food;
 			return Need.Water;
 		}

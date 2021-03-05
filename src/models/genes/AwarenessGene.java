@@ -26,6 +26,6 @@ public class AwarenessGene extends Gene {
 	private static double evaluateCostPerTick(double value) {
 		// This gene can be a nearly linear relationship
 		// This curve is so flat it essentially is
-		return Math.pow(value, 3) / 20000.0;
+		return Math.pow(value, 3) / 25000.0;
 	}
 }

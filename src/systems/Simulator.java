@@ -15,6 +15,7 @@ public class Simulator implements ActionListener {
 	private int totalIterations;
 	private int notificationFrequency;
 	private int currentIteration;
+	private boolean started = false;
 
 	public Simulator(List<ISimulation> simulations) {
 		this.simulations = simulations;
@@ -50,7 +51,7 @@ public class Simulator implements ActionListener {
 	public void setTickDelay(int delay) {
 		delay = Math.max(delay, 1);
 		boolean running = false;
-		if (timer.isRunning()) {
+		if (isRunning()) {
 			timer.stop();
 			running = true;
 		}
@@ -61,7 +62,15 @@ public class Simulator implements ActionListener {
 			timer.start();
 		}
 	}
+	
+	public boolean hasStarted() {
+		return started;
+	}
 
+	public boolean isRunning() {
+		return timer.isRunning();
+	}
+	
 	/**
 	 * Start the simulation.
 	 */
@@ -88,19 +97,23 @@ public class Simulator implements ActionListener {
 		totalIterations = numIterations;
 		currentIteration = totalIterations;
 		notificationFrequency = notifyInterval;
+		started = true;
 		timer.start();
 	}
 
 	public void resetSimulation() {
-		if (timer.isRunning()) {
+		if (isRunning()) {
 			timer.stop();
 		}
 
 		setTickDelay(timer.getDelay());
+		
 
 		for (ISimulation sim : simulations) {
 			sim.reset();
 		}
+		
+		started = false;
 	}
 
 	public void pauseSimulation() {
@@ -117,6 +130,7 @@ public class Simulator implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (currentIteration <= 0 && totalIterations != -1) {
 			timer.stop();
+			started = false;
 			return;
 		}
 

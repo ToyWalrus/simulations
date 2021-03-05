@@ -1,5 +1,6 @@
-package gui;
+package gui.panels;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.Map;
 
@@ -14,22 +15,26 @@ import models.world.PositionInt;
 import models.world.World;
 import interfaces.IObserver;
 
-public class WorldDrawer extends JPanel implements IObserver<World> {
+public class WorldPanel extends JPanel implements IObserver<World> {
 	private World world;
 	private int panelWidth;
-	private int panelHeight;	
-	
-	public WorldDrawer(int panelWidth, int panelHeight, World world) {
+	private int panelHeight;
+
+	public WorldPanel(int panelWidth, int panelHeight, World world) {
 		this(panelWidth, panelHeight);
-		setWorld(world);		
+		setWorld(world);
 	}
 
-	public WorldDrawer(int panelWidth, int panelHeight) {
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(panelWidth, panelHeight);
+	}
+
+	public WorldPanel(int panelWidth, int panelHeight) {
 		this.panelWidth = panelWidth;
 		this.panelHeight = panelHeight;
-		this.setSize(panelWidth, panelHeight);
 	}
-	
+
 	public void setWorld(World world) {
 		this.world = world;
 		if (world != null) {
@@ -38,11 +43,12 @@ public class WorldDrawer extends JPanel implements IObserver<World> {
 	}
 
 	public void paint(Graphics g) {
-		super.paint(g);		
-		if (world == null) return;
-		
-		double xScale = panelWidth / world.getWorldWidth();
-		double yScale = panelHeight / world.getWorldHeight();
+		super.paint(g);
+		if (world == null)
+			return;
+
+		double xScale = getWidth() / world.getWorldWidth();
+		double yScale = getHeight() / world.getWorldHeight();
 
 		for (Map.Entry<Position, Food> entry : world.getFood().entrySet()) {
 			PositionInt panelPoint = worldPointToPanelPoint(entry.getKey());
@@ -70,6 +76,8 @@ public class WorldDrawer extends JPanel implements IObserver<World> {
 	public void update(World updatedWorld) {
 		this.repaint();
 	}
-	
-	public World getWorld() { return world; }
+
+	public World getWorld() {
+		return world;
+	}
 }

@@ -24,10 +24,12 @@ public class PopulationTracker implements ITracker {
 
 	@Override
 	public void track(ISimulation sim) {
-		if (sim.getClass() != PopulationSimulation.class)
-			return;
-
-		int currentPop = ((PopulationSimulation) sim).getCurrentPopulation();
+		int currentPop = 0;
+		if (sim.getClass() == PopulationSimulation.class) {			
+			currentPop = ((PopulationSimulation) sim).getCurrentPopulation();
+		} else if (sim.getClass() == WorldSimulation.class) {
+			currentPop = ((WorldSimulation) sim).getWorld().getEntities().size();
+		}
 
 		for (IDataListener listener : dataListeners) {
 			if (listener != null) {

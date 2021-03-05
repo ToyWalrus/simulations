@@ -1,43 +1,62 @@
 package gui;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 
+import org.jfree.chart.ChartPanel;
+
+import gui.panels.WorldPanel;
 import interfaces.ISimulation;
+import interfaces.ITracker;
 import models.entities.Entity;
 import models.world.Food;
 import models.world.Position;
 import models.world.World;
+import systems.PopulationTracker;
 import systems.Simulator;
 import systems.WorldSimulation;
 
 public class Main {
 
-	public static void main(String[] args) {
-		final int worldWidth = 250;
-		final int worldHeight = 250;
-		int windowWidth = 800;
-		int windowHeight = 800;
+	static int worldWidth = 250;
+	static int worldHeight = 250;
+	static int windowWidth = 1280;
+	static int windowHeight = 800;
 
+	public static void main(String[] args) {
 		final JFrame frame = new JFrame("World view");
 		frame.setSize(windowWidth, windowHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		WorldDrawer wd = new WorldDrawer(windowWidth - windowWidth / 10, windowHeight - windowHeight / 10);
-		Simulator simulator = setupSimulator(wd, worldWidth, worldHeight);
+		setupLayout(frame);
 
-		frame.add(wd);
 		frame.setVisible(true);
-
-		simulator.startSimulation();
 	}
 
-	private static Simulator setupSimulator(WorldDrawer worldDrawer, int worldWidth, int worldHeight) {
+	private static Simulator setupSimulator(WorldPanel worldDrawer, int worldWidth, int worldHeight,
+			List<ITracker> trackers) {
 		WorldSimulation sim = WorldSimulation.defaultSimulation(worldWidth, worldHeight);
+		for (ITracker tracker : trackers) {
+			sim.addTracker(tracker);
+		}
 		worldDrawer.setWorld(sim.getWorld());
 		List<ISimulation> sims = List.of(sim);
 
@@ -45,4 +64,86 @@ public class Main {
 
 		return simulator;
 	}
+
+	private static void setupLayout(JFrame frame) {
+		int padding = 5;
+		JPanel content = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+		WorldPanel wd = new WorldPanel(worldWidth * 2, worldHeight * 2);
+		wd.setBorder(BorderFactory.createLineBorder(Color.gray));
+		PopulationTracker popTracker = new PopulationTracker("population");
+		final Simulator simulator = setupSimulator(wd, worldWidth, worldHeight, List.of(popTracker));
+		content.add(wd);
+
+		JPanel dataPanel = new JPanel();
+		dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
+		dataPanel.setPreferredSize(new Dimension(200, worldHeight * 2));
+		dataPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
+
+		final JButton startSimButton = new JButton("Start");
+		final JButton pauseSimButton = new JButton("Pause");
+		final JButton resetSimButton = new JButton("Reset");
+		pauseSimButton.setEnabled(false);		
+
+		startSimButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (simulator.hasStarted()) {
+					simulator.resumeSimulation();
+				} else {					
+					simulator.startSimulation();
+				}
+				pauseSimButton.setEnabled(true);				
+				startSimButton.setEnabled(false);
+			}
+		});
+
+		pauseSimButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulator.pauseSimulation();
+				pauseSimButton.setEnabled(false);
+				startSimButton.setEnabled(true);				
+			}
+		});
+		
+		resetSimButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulator.resetSimulation();
+				startSimButton.setEnabled(true);
+				pauseSimButton.setEnabled(false);
+			}
+		});
+
+		JButton visualizeButton = new JButton("Visualize");
+		visualizeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Clicked vis button");
+			}
+		});
+
+		addButtonToDataPanel(dataPanel, startSimButton, padding);
+		addButtonToDataPanel(dataPanel, pauseSimButton, padding);
+		addButtonToDataPanel(dataPanel, resetSimButton, padding);
+		addButtonToDataPanel(dataPanel, visualizeButton, padding);
+		content.add(dataPanel);
+
+		LiveLineChart lineChart = new LiveLineChart("Data Visualization", "Time", "Population", List.of(popTracker));
+		JPanel chartPanel = lineChart.getChart();
+		chartPanel.setPreferredSize(new Dimension(worldWidth * 2, worldHeight * 2));
+		content.add(chartPanel);
+
+		frame.add(content);
+	}
+
+	private static void addButtonToDataPanel(JPanel panel, JButton button, int vgap) {
+		Dimension buttonSize = new Dimension(120, 30);
+		button.setMinimumSize(buttonSize);
+		button.setPreferredSize(buttonSize);
+		button.setMaximumSize(buttonSize);
+		panel.add(button);
+		panel.add(Box.createRigidArea(new Dimension(0, vgap)));
+	}
+
 }

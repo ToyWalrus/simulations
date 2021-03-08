@@ -70,7 +70,7 @@ public class WorldSimulation implements ISimulation {
 			double y = rand.nextDouble() * (double)height;			
 			entity.setPosition(new Position(x, y));
 			
-			entity.addGene(new SpeedGene(0.1, .6));
+			entity.addGene(new SpeedGene(0.5, 1));
 			entity.addGene(new AwarenessGene(0.25, 20));
 			entity.addGene(new SizeGene(0.1, 1));
 			
@@ -79,6 +79,7 @@ public class WorldSimulation implements ISimulation {
 		
 		world.setEntities(entities);
 		world.setFoodFactory(new FoodFactory(new Food(.2, .005, 100)));
+		Entity.mutationVariation = .1;
 		
 		return new WorldSimulation(world);		
 	}

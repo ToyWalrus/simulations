@@ -57,7 +57,7 @@ public class WorldPanel extends JPanel implements IObserver<World> {
 
 		for (Entity entity : world.getEntities()) {
 			PositionInt panelPoint = worldPointToPanelPoint(entity.getPosition());
-			EntityDrawer.draw(g, entity, panelPoint, xScale, yScale, true);
+			EntityDrawer.draw(g, entity, panelPoint, xScale, yScale);
 		}
 	}
 

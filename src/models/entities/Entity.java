@@ -15,6 +15,7 @@ import systems.EntityBehavior;
 import util.HelperFunctions;
 
 public abstract class Entity {
+	public static double mutationVariation = .005;
 	protected EntityStats stats;
 	protected HashMap<String, Gene> genes;
 	protected Position worldPosition;
@@ -144,7 +145,6 @@ public abstract class Entity {
 
 	public Entity reproduce(Entity other) {
 		Random rand = new Random();
-		double mutationVariation = .005;
 
 		stats.setReproductiveUrge(0);
 		other.stats.setReproductiveUrge(0); // setting this for the other entity because reproduce will only be called

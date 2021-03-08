@@ -7,12 +7,8 @@ import models.world.Position;
 
 public final class HelperFunctions {
 	public static double distance(Position a, Position b) {
-		double epsilon = 0.001;
 		double dx = a.x - b.x;
 		double dy = a.y - b.y;
-		if (almost(dx, dy, epsilon)) {
-			return 0;
-		}
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 

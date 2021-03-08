@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import javax.swing.border.BevelBorder;
 
 import org.jfree.chart.ChartPanel;
 
+import gui.drawers.EntityDrawer;
 import gui.panels.WorldPanel;
 import interfaces.ISimulation;
 import interfaces.ITracker;
@@ -66,14 +68,18 @@ public class Main {
 	}
 
 	private static void setupLayout(JFrame frame) {
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));		
+		
 		int padding = 5;
-		JPanel content = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		WorldPanel wd = new WorldPanel(worldWidth * 2, worldHeight * 2);
 		wd.setBorder(BorderFactory.createLineBorder(Color.gray));
 		PopulationTracker popTracker = new PopulationTracker("population");
 		final Simulator simulator = setupSimulator(wd, worldWidth, worldHeight, List.of(popTracker));
-		content.add(wd);
+		row1.add(wd);
 
 		JPanel dataPanel = new JPanel();
 		dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
@@ -127,13 +133,31 @@ public class Main {
 		addButtonToDataPanel(dataPanel, pauseSimButton, padding);
 		addButtonToDataPanel(dataPanel, resetSimButton, padding);
 		addButtonToDataPanel(dataPanel, visualizeButton, padding);
-		content.add(dataPanel);
+		row1.add(dataPanel);
 
 		LiveLineChart lineChart = new LiveLineChart("Data Visualization", "Time", "Population", List.of(popTracker));
 		JPanel chartPanel = lineChart.getChart();
 		chartPanel.setPreferredSize(new Dimension(worldWidth * 2, worldHeight * 2));
-		content.add(chartPanel);
+		row1.add(chartPanel);
 
+		content.add(row1);
+		
+		Label slowColorText = new Label("Slowest:");		
+		Label fastColorText = new Label("Fastest:");
+		JPanel slowColor = new JPanel();
+		slowColor.setPreferredSize(new Dimension(10, 10));
+		slowColor.setBackground(EntityDrawer.LOW_SPEED);
+		JPanel fastColor = new JPanel();
+		fastColor.setPreferredSize(new Dimension(10, 10));
+		fastColor.setBackground(EntityDrawer.HIGH_SPEED);
+		row2.add(slowColorText);
+		row2.add(slowColor);
+		row2.add(Box.createRigidArea(new Dimension(20, 0)));
+		row2.add(fastColorText);
+		row2.add(fastColor);
+		
+		content.add(row2);
+		
 		frame.add(content);
 	}
 

@@ -7,9 +7,15 @@ import models.entities.Entity;
 import models.entities.EntityStats;
 import models.genes.AwarenessGene;
 import models.genes.SizeGene;
+import models.genes.SpeedGene;
 import models.world.PositionInt;
+import util.HelperFunctions;
 
 public class EntityDrawer {
+	public static Color LOW_SPEED = new Color(0, 0, 255);
+	public static Color HIGH_SPEED = new Color(0, 255, 0);
+	public static double startingSpeed = -1;
+	
 	public static void draw(Graphics g, Entity entity, PositionInt position, double xScale, double yScale) {
 		draw(g, entity, position, xScale, yScale, false);
 	}
@@ -17,7 +23,12 @@ public class EntityDrawer {
 	public static void draw(Graphics g, Entity entity, PositionInt position, double xScale, double yScale,
 			boolean debug) {
 		// get color
-		g.setColor(new Color(0, 0, 255));
+		double speed = entity.getGene(SpeedGene.name).getValue();
+		if (startingSpeed == -1) {
+			startingSpeed = speed;
+		}
+		
+		g.setColor(HelperFunctions.lerp(LOW_SPEED, HIGH_SPEED, speed / (startingSpeed * 2)));
 
 		// get size
 		int size = (int) Math.round(entity.getGene(SizeGene.name).getValue() * 8.0);

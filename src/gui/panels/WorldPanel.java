@@ -20,6 +20,11 @@ public class WorldPanel extends JPanel implements IObserver<World> {
 	private int panelWidth;
 	private int panelHeight;
 
+	public WorldPanel(int panelWidth, int panelHeight) {
+		this.panelWidth = panelWidth;
+		this.panelHeight = panelHeight;
+	}
+
 	public WorldPanel(int panelWidth, int panelHeight, World world) {
 		this(panelWidth, panelHeight);
 		setWorld(world);
@@ -30,15 +35,15 @@ public class WorldPanel extends JPanel implements IObserver<World> {
 		return new Dimension(panelWidth, panelHeight);
 	}
 
-	public WorldPanel(int panelWidth, int panelHeight) {
-		this.panelWidth = panelWidth;
-		this.panelHeight = panelHeight;
-	}
-
 	public void setWorld(World world) {
+		if (this.world != null) {
+			this.world.deRegisterObserver(this);
+		}
+
 		this.world = world;
-		if (world != null) {
-			world.registerObserver(this);
+
+		if (this.world != null) {
+			this.world.registerObserver(this);
 		}
 	}
 

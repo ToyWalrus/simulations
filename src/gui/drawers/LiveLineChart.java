@@ -1,4 +1,4 @@
-package gui;
+package gui.drawers;
 
 import java.awt.*;
 import java.util.List;

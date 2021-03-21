@@ -1,4 +1,4 @@
-package gui;
+package main;
 
 import systems.*;
 
@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import gui.drawers.LiveLineChart;
 import interfaces.ISimulation;
 import interfaces.ITracker;
 import models.entities.PopulationTestEntity;

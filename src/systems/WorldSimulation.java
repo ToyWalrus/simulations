@@ -39,6 +39,16 @@ public class WorldSimulation implements ISimulation {
 		return world;
 	}
 	
+	public List<ITracker> getTrackersOfType(Class<? extends ITracker> type) {
+		List<ITracker> toReturn = new ArrayList<ITracker>();
+		for (ITracker tracker : trackers) {
+			if (tracker.getClass() == type) {
+				toReturn.add(tracker);
+			}
+		}
+		return toReturn;
+	}
+	
 	@Override
 	public void tick() {
 		world.worldTick(foodSpawnChance, maxFood);

@@ -18,7 +18,7 @@ public class Food {
 		this.energy = 0;
 		this.nutrition = 0;
 		this.ticksPassed = 0;
-		this.grows = true;
+		this.grows = ticksUntilFullyGrown > 0;
 	}
 	
 	public static Food createFullyGrown(double energyAmount, double nutritionAmount) {
@@ -40,7 +40,7 @@ public class Food {
 	}
 	
 	public void growthTick() {
-		if (!grows || ticksPassed >= ticksUntilFullyGrown) return;
+		if (!grows || ticksPassed > ticksUntilFullyGrown) return;
 		energy += energyGainPerTick;
 		nutrition += nutritionGainPerTick;
 		ticksPassed++;
@@ -55,6 +55,10 @@ public class Food {
 	 * This will be used to sate the hunger stat.
 	 */
 	public double getNutrition() { return nutrition; }
+	
+	public double getEnergyGainPerTick() { return energyGainPerTick; }
+	public double getNutritionGainPerTick() { return nutritionGainPerTick; }
+	
 	public double getMaxPossibleEnergy() { return grows ? energyGainPerTick * ticksUntilFullyGrown : energy; }
 	public double getMaxPossibleNutrition() { return grows ? nutritionGainPerTick * ticksUntilFullyGrown : nutrition; }
 }

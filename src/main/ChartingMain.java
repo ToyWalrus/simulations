@@ -1,6 +1,7 @@
 package main;
 
 import systems.*;
+import systems.trackers.PopulationTracker;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

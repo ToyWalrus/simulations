@@ -1,42 +1,11 @@
 package main;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
-
-import org.jfree.chart.ChartPanel;
-
-import gui.drawers.EntityDrawer;
-import gui.drawers.LiveLineChart;
 import gui.panels.DataPanel;
-import gui.panels.WorldPanel;
-import interfaces.ISimulation;
-import interfaces.ITracker;
-import models.entities.Entity;
-import models.world.Food;
-import models.world.Position;
-import models.world.World;
-import systems.PopulationTracker;
-import systems.Simulator;
 import systems.WorldSimulation;
+import systems.trackers.AvailableFoodTracker;
+import systems.trackers.AverageSpeedTracker;
+import systems.trackers.PopulationTracker;
 
 public class Main {
 
@@ -50,10 +19,11 @@ public class Main {
 		frame.setSize(windowWidth, windowHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// TODO: also get live bar chart for death causes
 		DataPanel mainPanel = new DataPanel(setupSimulation());
 		mainPanel.setup(windowWidth, 500);
 
+		// TODO: create a GUI for creating a simulation
+		
 		frame.add(mainPanel);
 
 		frame.setVisible(true);
@@ -63,6 +33,10 @@ public class Main {
 		WorldSimulation sim = WorldSimulation.defaultSimulation(worldWidth, worldHeight);
 
 		sim.addTracker(new PopulationTracker("Population"));
+		sim.addTracker(new AverageSpeedTracker("Average Speed"));
+		sim.addTracker(new AvailableFoodTracker("Available Food", false));
+		sim.addTracker(new AvailableFoodTracker("Fully Grown Food", true));
+		// TODO: also get live line/bar chart for death causes
 		
 		return sim;
 	}

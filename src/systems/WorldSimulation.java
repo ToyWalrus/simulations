@@ -82,13 +82,13 @@ public class WorldSimulation implements ISimulation {
 			
 			entity.addGene(new SpeedGene(0.5, 1));
 			entity.addGene(new AwarenessGene(0.25, 20));
-			entity.addGene(new SizeGene(0.1, 1));
+			entity.addGene(new SizeGene(0.5, 1));
 			
 			entities.add(entity);
 		}
 		
 		world.setEntities(entities);
-		world.setFoodFactory(new FoodFactory(new Food(.2, .005, 100)));
+		world.setFoodFactory(new FoodFactory(new Food(.2, .0075, 100)));
 		Entity.mutationVariation = .1;
 		
 		return new WorldSimulation(world);		

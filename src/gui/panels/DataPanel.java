@@ -8,24 +8,19 @@ import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import gui.drawers.EntityDrawer;
-import gui.drawers.LiveLineChart;
-import interfaces.ISimulation;
 import interfaces.ITracker;
-import systems.PopulationTracker;
 import systems.Simulator;
 import systems.WorldSimulation;
+import systems.trackers.*;
 
 public class DataPanel extends JPanel {
 	private Simulator simulator;
@@ -183,12 +178,23 @@ public class DataPanel extends JPanel {
 
 		},
 		Speed {
-
+			public Class<? extends ITracker> trackerType() {
+				return AverageSpeedTracker.class;
+			}
+		},
+		AvailableFood {
+			public String toString() {
+				return "Available Food";
+			}
+			
+			public Class<? extends ITracker> trackerType() {
+				return AvailableFoodTracker.class;
+			}
 		},
 		Awareness {
 
 		};
-
+		
 		Class<? extends ITracker> trackerType() {
 //			System.out.println("Method trackerType() has not been implemented for ChartType." + this.toString());
 			return null;

@@ -1,4 +1,4 @@
-package systems;
+package systems.trackers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 import interfaces.IDataListener;
 import interfaces.ISimulation;
 import interfaces.ITracker;
+import systems.PopulationSimulation;
+import systems.WorldSimulation;
 
 public class PopulationTracker implements ITracker {
 	private static int trackerId = 1;
@@ -15,19 +17,19 @@ public class PopulationTracker implements ITracker {
 	public PopulationTracker() {
 		this("Population Tracker " + trackerId);
 	}
-	
+
 	public PopulationTracker(String trackerName) {
 		this.trackerName = trackerName;
 		this.dataListeners = new ArrayList<IDataListener>();
-		trackerId++;		
+		trackerId++;
 	}
 
 	@Override
 	public void track(ISimulation sim) {
 		int currentPop = 0;
-		if (sim.getClass() == PopulationSimulation.class) {			
+		if (sim instanceof PopulationSimulation) {
 			currentPop = ((PopulationSimulation) sim).getCurrentPopulation();
-		} else if (sim.getClass() == WorldSimulation.class) {
+		} else if (sim instanceof WorldSimulation) {
 			currentPop = ((WorldSimulation) sim).getWorld().getEntities().size();
 		}
 

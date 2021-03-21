@@ -38,8 +38,8 @@ import systems.WorldSimulation;
 
 public class Main {
 
-	static int worldWidth = 250;
-	static int worldHeight = 250;
+	static int worldWidth = 300;
+	static int worldHeight = 300;
 	static int windowWidth = 1280;
 	static int windowHeight = 800;
 
@@ -48,7 +48,7 @@ public class Main {
 		frame.setSize(windowWidth, windowHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		setupLayout(frame);
+		setupLayout(frame, 500);
 
 		frame.setVisible(true);
 	}
@@ -67,7 +67,7 @@ public class Main {
 		return simulator;
 	}
 
-	private static void setupLayout(JFrame frame) {
+	private static void setupLayout(JFrame frame, int rowHeight) {
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));		
 		
@@ -75,15 +75,15 @@ public class Main {
 		JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		WorldPanel wd = new WorldPanel(worldWidth * 2, worldHeight * 2);
-		wd.setBorder(BorderFactory.createLineBorder(Color.gray));
+		WorldPanel wp = new WorldPanel(rowHeight, rowHeight);
+		wp.setBorder(BorderFactory.createLineBorder(Color.gray));
 		PopulationTracker popTracker = new PopulationTracker("population");
-		final Simulator simulator = setupSimulator(wd, worldWidth, worldHeight, List.of(popTracker));
-		row1.add(wd);
+		final Simulator simulator = setupSimulator(wp, worldWidth, worldHeight, List.of(popTracker));
+		row1.add(wp);
 
 		JPanel dataPanel = new JPanel();
 		dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
-		dataPanel.setPreferredSize(new Dimension(200, worldHeight * 2));
+		dataPanel.setPreferredSize(new Dimension(200, rowHeight));
 		dataPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
 
 		final JButton startSimButton = new JButton("Start");
@@ -137,7 +137,7 @@ public class Main {
 
 		LiveLineChart lineChart = new LiveLineChart("Data Visualization", "Time", "Population", List.of(popTracker));
 		JPanel chartPanel = lineChart.getChart();
-		chartPanel.setPreferredSize(new Dimension(worldWidth * 2, worldHeight * 2));
+		chartPanel.setPreferredSize(new Dimension(rowHeight, rowHeight));
 		row1.add(chartPanel);
 
 		content.add(row1);

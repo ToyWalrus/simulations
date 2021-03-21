@@ -54,17 +54,17 @@ public class EntityBehavior {
 		Position originalPosition = entity.getPosition();
 
 		switch (entity.getCurrentNeed()) {
-			case Food:
-				searchForFood();
-				break;
-			case Water:
-				searchForWater();
-				break;
-			case Reproduce:
-				searchForMate();
-				break;
-			default:
-				break;
+		case Food:
+			searchForFood();
+			break;
+		case Water:
+			searchForWater();
+			break;
+		case Reproduce:
+			searchForMate();
+			break;
+		default:
+			break;
 		}
 
 		return getTotalEnergyUsedDuringLastAction(originalPosition);
@@ -181,11 +181,30 @@ public class EntityBehavior {
 	public void wander() {
 		double wanderSpeed = entity.getGene(SpeedGene.name).getValue() * .75;
 		Position currentPosition = entity.getPosition();
-		double angle = 0;
+		double angle = Double.NaN;
+		Random rand = new Random();
 
 		if (currentPosition.equals(previousPosition)) {
-			angle = new Random().nextDouble() * Math.PI * 2;
-		} else {
+			angle = rand.nextDouble() * Math.PI * 2;
+		} else if (currentPosition.y == previousPosition.y) {
+			if (currentPosition.y == world.getWorldHeight()) {
+				// bottom of world
+				angle = HelperFunctions.randomRange(rand, Math.PI, Math.PI * 2);
+			} else if (currentPosition.y == 0) {
+				// top of world
+				angle = HelperFunctions.randomRange(rand, 0, Math.PI);
+			}
+		} else if (currentPosition.x == previousPosition.x) {
+			if (currentPosition.x == 0) {
+				// left side of world
+				angle = HelperFunctions.randomRange(rand, -Math.PI / 2, Math.PI / 2);
+			} else if (currentPosition.x == world.getWorldWidth()) {
+				// right side of world
+				angle = HelperFunctions.randomRange(rand, Math.PI / 2, Math.PI * 3 / 4);
+			}
+		}
+
+		if (Double.isNaN(angle)) {
 			double dx = currentPosition.x - previousPosition.x;
 			double dy = currentPosition.y - previousPosition.y;
 			angle = Math.atan2(dy, dx);

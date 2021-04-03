@@ -20,11 +20,13 @@ public abstract class Entity {
 	protected HashMap<String, Gene> genes;
 	protected Position worldPosition;
 	protected EntityBehavior behavior;
+	protected CauseOfDeath causeOfDeath;
 
 	public Entity(EntityStats stats) {
 		this.stats = stats;
 		this.genes = new HashMap<String, Gene>();
 		this.worldPosition = new Position(0, 0);
+		causeOfDeath = CauseOfDeath.None;
 	}
 	
 	protected abstract Entity createNewInstance(EntityStats withStats);
@@ -46,12 +48,18 @@ public abstract class Entity {
 	public void die() {
 		String cause = "(?)";
 
-		if (stats.getHunger() >= 1)
+		if (stats.getHunger() >= 1) {
+			causeOfDeath = CauseOfDeath.Hunger;
 			cause = "hunger";
-		else if (stats.getThirst() >= 1)
+		}
+		else if (stats.getThirst() >= 1) {
+			causeOfDeath = CauseOfDeath.Thirst;
 			cause = "thirst";
-		else if (stats.getEnergy() <= 0)
+		}
+		else if (stats.getEnergy() <= 0) {
+			causeOfDeath = CauseOfDeath.Energy;
 			cause = "no energy";
+		}
 
 		System.out.println("Entity died due to " + cause);
 	}
@@ -142,6 +150,11 @@ public abstract class Entity {
 		double thirst = stats.getThirst();
 		stats.setThirst(thirst - amount);
 	}
+	
+	public CauseOfDeath getCauseOfDeath() {
+		return causeOfDeath;
+	}
+	
 
 	public Entity reproduce(Entity other) {
 		Random rand = new Random();

@@ -59,7 +59,7 @@ public class DataPanel extends JPanel {
 		wp.setWorld(worldSim.getWorld());
 
 		ChartPanelArea chartPanelArea = new ChartPanelArea(worldSim, areaHeight, areaHeight);
-		addAllChartTypes(chartPanelArea);
+		addAllChartsForTrackers(chartPanelArea);
 
 		JPanel buttonPanel = setupAllButtons(chartPanelArea);
 
@@ -128,9 +128,9 @@ public class DataPanel extends JPanel {
 			}
 		});
 
-		JComboBox<ChartType> currentlyVisibleChartSelector = new JComboBox<ChartType>();
-		for (ChartType type : ChartType.values()) {
-			if (type.trackerType() != null) {				
+		JComboBox<TrackerChartConfiguration> currentlyVisibleChartSelector = new JComboBox<TrackerChartConfiguration>();
+		for (TrackerChartConfiguration type : TrackerChartConfiguration.values()) {
+			if (type.trackerType() != null) {
 				currentlyVisibleChartSelector.addItem(type);
 			}
 		}
@@ -138,8 +138,8 @@ public class DataPanel extends JPanel {
 		currentlyVisibleChartSelector.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JComboBox<ChartType> box = (JComboBox<ChartType>) e.getSource();
-				ChartType selectedItem = (ChartType) box.getSelectedItem();
+				JComboBox<TrackerChartConfiguration> box = (JComboBox<TrackerChartConfiguration>) e.getSource();
+				TrackerChartConfiguration selectedItem = (TrackerChartConfiguration) box.getSelectedItem();
 				chartPanelArea.viewChart(selectedItem.toString());
 			}
 		});
@@ -153,9 +153,9 @@ public class DataPanel extends JPanel {
 		return buttonPanel;
 	}
 
-	private void addAllChartTypes(ChartPanelArea panel) {
-		for (ChartType type : ChartType.values()) {
-			panel.addChartFor(type.toString(), type.trackerType());
+	private void addAllChartsForTrackers(ChartPanelArea panel) {
+		for (TrackerChartConfiguration config : TrackerChartConfiguration.values()) {
+			panel.addChartFor(config);
 		}
 	}
 
@@ -166,38 +166,5 @@ public class DataPanel extends JPanel {
 		button.setMaximumSize(buttonSize);
 		panel.add(button);
 		panel.add(Box.createRigidArea(new Dimension(0, vgap)));
-	}
-
-	private enum ChartType {
-		Population {
-			public Class<? extends ITracker> trackerType() {
-				return PopulationTracker.class;
-			}
-		},
-		Size {
-
-		},
-		Speed {
-			public Class<? extends ITracker> trackerType() {
-				return AverageSpeedTracker.class;
-			}
-		},
-		AvailableFood {
-			public String toString() {
-				return "Available Food";
-			}
-			
-			public Class<? extends ITracker> trackerType() {
-				return AvailableFoodTracker.class;
-			}
-		},
-		Awareness {
-
-		};
-		
-		Class<? extends ITracker> trackerType() {
-//			System.out.println("Method trackerType() has not been implemented for ChartType." + this.toString());
-			return null;
-		}
 	}
 }

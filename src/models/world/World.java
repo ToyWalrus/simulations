@@ -22,6 +22,7 @@ public class World implements IObservable {
 	private int worldHeight;
 	private Random rand;
 	private FoodFactory foodFactory;
+	private List<Entity> deadEntitiesLastTick;
 
 	private Set<IObserver<World>> observers;
 
@@ -30,6 +31,7 @@ public class World implements IObservable {
 		this.entities = entities;
 		worldWidth = width;
 		worldHeight = height;
+		deadEntitiesLastTick = new ArrayList<Entity>();
 		rand = new Random(System.currentTimeMillis());
 		observers = new HashSet<IObserver<World>>();
 		foodFactory = new FoodFactory(Food.createFullyGrown(100, 1));
@@ -62,18 +64,24 @@ public class World implements IObservable {
 	public List<Entity> getEntities() {
 		return entities;
 	}
+	
+	public List<Entity> getEntityDeathsSinceLastTick() {
+		return deadEntitiesLastTick;
+	}
 
 	public void worldTick(double foodSpawnChance) {
 		worldTick(foodSpawnChance, 200);
 	}
 
 	public void worldTick(double foodSpawnChance, int maxFoodAllowed) {
+		deadEntitiesLastTick.clear();
 		List<Entity> currentEntities = new ArrayList<Entity>(entities);
 
 		for (Entity e : currentEntities) {
 			e.tick(this);
 			if (e.isDead()) {
 				entities.remove(e);
+				deadEntitiesLastTick.add(e);
 			}
 		}
 

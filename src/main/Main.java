@@ -3,9 +3,7 @@ package main;
 import javax.swing.JFrame;
 import gui.panels.DataPanel;
 import systems.WorldSimulation;
-import systems.trackers.AvailableFoodTracker;
-import systems.trackers.AverageSpeedTracker;
-import systems.trackers.PopulationTracker;
+import systems.trackers.*;
 
 public class Main {
 
@@ -36,7 +34,7 @@ public class Main {
 		sim.addTracker(new AverageSpeedTracker("Average Speed"));
 		sim.addTracker(new AvailableFoodTracker("Available Food", false));
 		sim.addTracker(new AvailableFoodTracker("Fully Grown Food", true));
-		// TODO: also get live line/bar chart for death causes
+		sim.addTracker(new CauseOfDeathTracker("Cause of Death"));
 		
 		return sim;
 	}

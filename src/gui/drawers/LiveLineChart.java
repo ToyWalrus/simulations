@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jfree.chart.*;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
@@ -13,9 +14,10 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import interfaces.IDataListener;
+import interfaces.ILiveChart;
 import interfaces.ITracker;
 
-public class LiveLineChart implements IDataListener {
+public class LiveLineChart implements IDataListener, ILiveChart {
 	private List<String> seriesKeys;
 	private List<String> unregisteredSeries;
 	private List<Color> defaultLineColors;
@@ -52,6 +54,13 @@ public class LiveLineChart implements IDataListener {
 
 	public ChartPanel getChart() {
 		initChart();
+		return new ChartPanel(chart);
+	}
+	
+	public ChartPanel getChart(double minY, double maxY) {
+		initChart();		
+		NumberAxis rangeAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+		rangeAxis.setRange(minY, maxY);
 		return new ChartPanel(chart);
 	}
 	

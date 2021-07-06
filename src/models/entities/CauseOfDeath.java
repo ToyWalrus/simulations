@@ -1,7 +1,7 @@
 package models.entities;
 
 public enum CauseOfDeath {
-	None,
+	Unknown,
 	Hunger,
 	Thirst,
 	Energy,

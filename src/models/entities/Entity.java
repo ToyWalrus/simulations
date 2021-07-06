@@ -42,7 +42,7 @@ public abstract class Entity implements IConsumable {
 		this.genes = new HashMap<String, Gene>();
 		this.worldPosition = new Position(0, 0);
 		this.gender = gender;
-		causeOfDeath = CauseOfDeath.None;
+		causeOfDeath = null;
 	}
 
 	protected abstract Entity createNewInstance(EntityStats withStats);
@@ -56,15 +56,22 @@ public abstract class Entity implements IConsumable {
 		stats.tick(energyUsed);
 		updateNeeds();
 
-		if (isDead()) {
+		if (shouldDie()) {
 			die();
 		}
 	}
 
 	public void die() {
+		die(false);
+	}
+
+	public void die(boolean eaten) {
 		String cause = "(?)";
 
-		if (stats.getHunger() >= 1) {
+		if (eaten) {
+			causeOfDeath = CauseOfDeath.Eaten;
+			cause = "being eaten";
+		} else if (stats.getHunger() >= 1) {
 			causeOfDeath = CauseOfDeath.Hunger;
 			cause = "hunger";
 		} else if (stats.getThirst() >= 1) {
@@ -76,9 +83,12 @@ public abstract class Entity implements IConsumable {
 		} else if (stats.getAge() > stats.getLifeExpectancy()) {
 			causeOfDeath = CauseOfDeath.OldAge;
 			cause = "old age";
+		} else {
+			causeOfDeath = CauseOfDeath.Unknown;
+			cause = "unknown";
 		}
 
-		System.out.println("Entity died due to " + cause);
+		System.out.println("Entity died due to " + cause + ", at age " + stats.getAge());
 	}
 
 	public abstract ConsumableType getPreferredFoodType();
@@ -104,11 +114,11 @@ public abstract class Entity implements IConsumable {
 	}
 
 	public double thirstGainPerTick() {
-		return 0.0025;
+		return 0.002;
 	}
 
 	public double reproductiveUrgeGainPerTick() {
-		return 0.0025;
+		return 0.01;
 	}
 
 	public Gender getGender() {
@@ -122,7 +132,12 @@ public abstract class Entity implements IConsumable {
 	}
 
 	public boolean isDead() {
-		return stats.getEnergy() <= 0 || stats.getHunger() >= 1 || stats.getThirst() >= 1 || stats.getAge() > stats.getLifeExpectancy();
+		return causeOfDeath != null;
+	}
+
+	public boolean shouldDie() {
+		return stats.getEnergy() <= 0 || stats.getHunger() >= 1 || stats.getThirst() >= 1
+				|| stats.getAge() > stats.getLifeExpectancy();
 	}
 
 	public boolean isHungry() {
@@ -133,7 +148,7 @@ public abstract class Entity implements IConsumable {
 		return stats.getThirst() >= stats.getThirstThreshold();
 	}
 
-	public EntityStats.Need getCurrentNeed() {
+	public Need getCurrentNeed() {
 		return stats.getCurrentNeed();
 	}
 
@@ -193,7 +208,7 @@ public abstract class Entity implements IConsumable {
 
 	@Override
 	public double getNutrition() {
-		final double nutritionBaseValue = 1;		
+		final double nutritionBaseValue = 1;
 		return nutritionBaseValue * stats.progressTowardMaturity();
 	}
 
@@ -202,14 +217,16 @@ public abstract class Entity implements IConsumable {
 		return ConsumableType.Entity;
 	}
 
-	/** 
-	 * The other Entity must be of the opposite gender and must have the need
-	 * to reproduce.
+	/**
+	 * The other Entity must be of the opposite gender and must have the need to
+	 * reproduce.
+	 * 
 	 * @param other
 	 * @return Whether the given Entity is available to mate with.
 	 */
 	public boolean canReproduceWith(Entity other) {
-		if (other == null) return false;
+		if (other == null)
+			return false;
 		return other.getStats().getCurrentNeed() == Need.Reproduce && gender != other.gender;
 	}
 

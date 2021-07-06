@@ -66,6 +66,7 @@ public class EntityBehavior {
 			searchForMate();
 			break;
 		default:
+			wander();
 			break;
 		}
 

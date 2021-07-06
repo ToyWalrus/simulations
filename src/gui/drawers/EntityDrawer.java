@@ -5,6 +5,7 @@ import java.awt.Graphics;
 
 import models.entities.Entity;
 import models.entities.EntityStats;
+import models.entities.Entity.Gender;
 import models.genes.AwarenessGene;
 import models.genes.SizeGene;
 import models.genes.SpeedGene;
@@ -14,8 +15,12 @@ import util.HelperFunctions;
 public class EntityDrawer {
 	public static Color LOW_SPEED = new Color(0, 0, 255);
 	public static Color HIGH_SPEED = new Color(0, 255, 0);
+
+	public static Color MALE = new Color(66, 135, 245);
+	public static Color FEMALE = new Color(245, 66, 206);
+
 	public static double startingSpeed = -1;
-	
+
 	public static void draw(Graphics g, Entity entity, PositionInt position, double xScale, double yScale) {
 		draw(g, entity, position, xScale, yScale, false);
 	}
@@ -27,8 +32,6 @@ public class EntityDrawer {
 		if (startingSpeed == -1) {
 			startingSpeed = speed;
 		}
-		
-		g.setColor(HelperFunctions.lerp(LOW_SPEED, HIGH_SPEED, speed / (startingSpeed * 2)));
 
 		// get size
 		int size = (int) Math.round(entity.getGene(SizeGene.name).getValue() * 8.0);
@@ -38,7 +41,14 @@ public class EntityDrawer {
 		PositionInt drawCenter = new PositionInt(position.x - sizeX / 4, position.y - sizeY / 4);
 
 		// shape?
+		g.setColor(HelperFunctions.lerp(LOW_SPEED, HIGH_SPEED, speed / (startingSpeed * 2)));
 		g.fillOval(drawCenter.x, drawCenter.y, sizeX, sizeY);
+
+		int innerSizeX = (int) Math.round(sizeX * .75);
+		int innerSizeY = (int) Math.round(sizeY * .75);
+		g.setColor(entity.getGender() == Gender.Male ? MALE : FEMALE);
+		g.fillOval(drawCenter.x + (sizeX - innerSizeX) / 2, drawCenter.y + (sizeY - innerSizeY) / 2, innerSizeX,
+				innerSizeY);
 
 		if (debug) {
 			int barLength = sizeX * 2;

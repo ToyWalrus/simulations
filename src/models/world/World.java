@@ -124,7 +124,7 @@ public class World implements IObservable {
 		}
 		for (Entity e : entities) {
 			if (consumable.equals(consumable)) {
-				entities.remove(e);
+				e.die(true);
 				return;
 			}
 		}
@@ -154,7 +154,7 @@ public class World implements IObservable {
 		Map<Position, IConsumable> consumableEntities = entities.stream().filter(e -> !exclude.contains(e))
 				.collect(Collectors.toMap(Entity::getPosition, e -> e, (existing, replacement) -> existing));
 		
-		Set<Position> consumablePositions = consumableEntities.keySet();
+		HashSet<Position> consumablePositions = new HashSet<Position>(consumableEntities.keySet());
 		consumablePositions
 				.addAll(food.keySet().stream().filter(e -> !exclude.contains(food.get(e))).collect(Collectors.toSet()));
 

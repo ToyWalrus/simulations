@@ -9,7 +9,7 @@ public class EntityStats {
 		Food, Water, Reproduce, None
 	}
 
-	public static double ageGainPerTick = .01;
+	public static double ageGainPerTick = .075;
 
 	private double maxEnergy;
 
@@ -25,22 +25,23 @@ public class EntityStats {
 
 	private double hungerThreshold;
 	private double thirstThreshold;
-	private double minReproductiveUrgeThreshold;
 
-	private double age;
+	// This is a value between 0 and 1 indicating
+	// when the Entity should be considered mature
+	// in relation to its lifeExpectancy.
 	private double maturityThreshold;
 	private double lifeExpectancy;
+	private double age;
 
 	public EntityStats(double maxEnergy, double lifeExpectancy) {
-		this(maxEnergy, .5, .5, .45, lifeExpectancy * .45, lifeExpectancy);
+		this(maxEnergy, .5, .5, .2, lifeExpectancy);
 	}
 
-	public EntityStats(double maxEnergy, double hungerThreshold, double thirstThreshold,
-			double minReproductiveUrgeThreshold, double maturityThreshold, double lifeExpectancy) {
+	public EntityStats(double maxEnergy, double hungerThreshold, double thirstThreshold, double maturityThreshold,
+			double lifeExpectancy) {
 		this.maxEnergy = maxEnergy;
 		this.hungerThreshold = hungerThreshold;
 		this.thirstThreshold = thirstThreshold;
-		this.minReproductiveUrgeThreshold = minReproductiveUrgeThreshold;
 		this.maturityThreshold = maturityThreshold;
 		this.lifeExpectancy = lifeExpectancy;
 
@@ -57,40 +58,55 @@ public class EntityStats {
 	 * @return A new EntityStats object with all stats set to their starting values.
 	 */
 	public EntityStats freshStats() {
-		return new EntityStats(this.maxEnergy, this.hungerThreshold, this.thirstThreshold,
-				this.minReproductiveUrgeThreshold, this.maturityThreshold, this.lifeExpectancy);
+		return new EntityStats(this.maxEnergy, this.hungerThreshold, this.thirstThreshold, this.maturityThreshold,
+				this.lifeExpectancy);
 	}
 
 	/**
 	 * Subtract the given amount from the current energy of the entity.
 	 * 
 	 * @param energyUsed
-	 * @return False if the energy falls below zero, True if more energy still
-	 *         remains.
+	 * @return False if the energy falls below zero or age is over the life
+	 *         expectancy, True if more energy still remains.
 	 */
 	public boolean tick(double energyUsed) {
 		energy -= energyUsed;
 		age += ageGainPerTick;
 
-		if (energy <= 0) {
+		if (energy <= 0 || age >= lifeExpectancy) {
 			return false;
 		}
 		return true;
 	}
 
 	public Need getCurrentNeed() {
-		double reproHungerThreshold = hungerThreshold / 2;
-		boolean canReproBecauseNotHungry = hunger < reproHungerThreshold;
-		boolean thirsty = thirst >= thirstThreshold;
+		final double dangerZone = .8;
+		boolean mustFindFood = hunger >= dangerZone;
+//		boolean mustFindWater = thirst >= dangerZone;
 
-		if ((!thirsty && reproductiveUrge >= minReproductiveUrgeThreshold && canReproBecauseNotHungry)
-				|| reproductiveUrge >= .95) {
-			return Need.Reproduce;
-		} else {
-			if (hunger > thirst || energy < .25)
-				return Need.Food;
-			return Need.Water;
+		boolean hungry = hunger >= hungerThreshold || energy < 1 - dangerZone;
+		boolean thirsty = false;// thirst >= thirstThreshold;
+
+		if (mustFindFood) {
+			return Need.Food;
 		}
+		// if (mustFindWater) {
+		// return Need.Water;
+		// }
+
+		if (hungry || thirsty) {
+			if (hungry || hunger > thirst) {
+				return Need.Food;
+			}
+//			return Need.Water;
+		}
+
+		if (isMature() && reproductiveUrge >= .5) {
+			return Need.Reproduce;
+		}
+
+		return Need.Food;
+		// return Need.None;
 	}
 
 	/**
@@ -107,7 +123,7 @@ public class EntityStats {
 		double hungerThreshold = rand.nextBoolean() ? this.hungerThreshold : mateStats.hungerThreshold;
 		double thirstThreshold = rand.nextBoolean() ? this.thirstThreshold : mateStats.thirstThreshold;
 		double lifeExpectancy = rand.nextBoolean() ? this.lifeExpectancy : mateStats.lifeExpectancy;
-		return new EntityStats(maxEnergy, hungerThreshold, thirstThreshold, this.minReproductiveUrgeThreshold, maturityThreshold, lifeExpectancy);
+		return new EntityStats(maxEnergy, hungerThreshold, thirstThreshold, maturityThreshold, lifeExpectancy);
 	}
 
 	/**
@@ -126,6 +142,7 @@ public class EntityStats {
 		stats.maxEnergy += HelperFunctions.randomRange(rand, -variationAmount, variationAmount);
 		stats.hungerThreshold += HelperFunctions.randomRange(rand, -variationAmount, variationAmount);
 		stats.thirstThreshold += HelperFunctions.randomRange(rand, -variationAmount, variationAmount);
+		stats.lifeExpectancy += HelperFunctions.randomRange(rand, -variationAmount * 2, variationAmount * 2);
 		return stats;
 	}
 
@@ -200,12 +217,16 @@ public class EntityStats {
 	public double getAge() {
 		return age;
 	}
-	
+
 	public double getLifeExpectancy() {
 		return lifeExpectancy;
 	}
-	
+
 	public double progressTowardMaturity() {
-		return Math.min(age / maturityThreshold, 1);
+		return Math.min(age / (maturityThreshold * lifeExpectancy), 1);
+	}
+
+	public boolean isMature() {
+		return progressTowardMaturity() == 1;
 	}
 }

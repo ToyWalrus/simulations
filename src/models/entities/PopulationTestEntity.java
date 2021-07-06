@@ -5,7 +5,7 @@ public class PopulationTestEntity extends Entity {
 	private double deathChance;
 	
 	public PopulationTestEntity(double replicationChance, double deathChance) {
-		super(new EntityStats(100));
+		super(new EntityStats(100, 100), Gender.random());
 		this.replicationChance = replicationChance;
 		this.deathChance = deathChance;
 	}
@@ -26,5 +26,10 @@ public class PopulationTestEntity extends Entity {
 	@Override
 	protected Entity createNewInstance(EntityStats withStats) {
 		return new PopulationTestEntity(replicationChance, deathChance);
+	}
+	
+	@Override
+	public ConsumableType getPreferredFoodType() {
+		return ConsumableType.Plant;
 	}
 }

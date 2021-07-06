@@ -7,7 +7,7 @@ package models.entities;
 public class HungerOnlyEntity extends Entity {
 
 	public HungerOnlyEntity() {
-		this(new EntityStats(0));
+		this(new EntityStats(0, 100));
 		stats.setHunger(0);
 	}
 
@@ -28,5 +28,22 @@ public class HungerOnlyEntity extends Entity {
 	@Override
 	protected Entity createNewInstance(EntityStats stats) {
 		return new HungerOnlyEntity(stats);
+	}
+
+	@Override
+	public double getEnergy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getNutrition() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
+	public ConsumableType getPreferredFoodType() {
+		return ConsumableType.Plant;
 	}
 }

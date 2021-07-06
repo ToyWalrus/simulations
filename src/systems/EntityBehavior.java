@@ -1,5 +1,6 @@
 package systems;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -9,6 +10,7 @@ import models.entities.Entity;
 import models.entities.EntityStats;
 import models.genes.*;
 import models.world.Food;
+import models.world.IConsumable;
 import models.world.Position;
 import models.world.World;
 import util.HelperFunctions;
@@ -88,19 +90,30 @@ public class EntityBehavior {
 	}
 
 	private void searchForFood() {
-		List<Pair<Position, Food>> food = world.getFoodInRadius(entity.getPosition(),
-				entity.getGene(AwarenessGene.name).getValue());
+		List<Pair<Position, IConsumable>> food = world.getFoodInRadius(entity.getPosition(),
+				entity.getGene(AwarenessGene.name).getValue(), List.of(entity));
 
 		if (!food.isEmpty()) {
-			Position target = food.get(0).first;
-			Food foodToEat = food.get(0).second;
+			Position target;
+			IConsumable consumable;
+			int index = 0;
+			do {
+				target = food.get(index).first;
+				consumable = food.get(index).second;
+				index++;
+			} while (consumable.getConsumableType() != entity.getPreferredFoodType() && index < food.size());
+			
+			boolean targetIsDesired = consumable.getConsumableType() == entity.getPreferredFoodType();
 
-			if (isCloseEnoughToTarget(target)) {
-				entity.eatFood(foodToEat);
-				world.removeFood(foodToEat);
+			if (targetIsDesired && isCloseEnoughToTarget(target)) {
+				entity.consume(consumable);
+				world.removeConsumable(consumable);
 				ticksSincePerformedLastAction = 0;
-			} else {
+			} else if (targetIsDesired) {
 				entity.setPosition(getNewEntityPositionTowardTarget(target));
+			} else {
+				wander();
+				return;
 			}
 
 			previousPosition = entity.getPosition();
@@ -117,10 +130,16 @@ public class EntityBehavior {
 		if (targetMate == null) {
 			List<Entity> closeEntities = world.getEntitiesInRadius(entity.getPosition(),
 					entity.getGene(AwarenessGene.name).getValue(), List.of(entity)); // exclude self from search
-
-			if (!closeEntities.isEmpty()) {
-				// TODO do some sort of desirability check/availability check
-				targetMate = closeEntities.get(0);
+			
+			Comparator<Entity> comparator = Comparator.comparingDouble(e -> e.getGene(DesirabilityGene.name).getValue());
+			closeEntities.sort(comparator.reversed());
+			
+			// TODO might be fun to have some sort of "snobbiness" factor where entities won't consider mates beneath certain Desirability value
+			for (Entity e : closeEntities) {
+				if (entity.canReproduceWith(e)) {
+					targetMate = e;
+					break;
+				}
 			}
 		}
 

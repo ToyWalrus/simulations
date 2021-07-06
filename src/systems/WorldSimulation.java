@@ -74,7 +74,7 @@ public class WorldSimulation implements ISimulation {
 		
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		for (int i = 0; i < 10; ++i) {
-			Entity entity = new BasicEntity(new EntityStats(400));
+			Entity entity = new BasicEntity(new EntityStats(400,100));
 			
 			double x = rand.nextDouble() * (double)width;
 			double y = rand.nextDouble() * (double)height;			

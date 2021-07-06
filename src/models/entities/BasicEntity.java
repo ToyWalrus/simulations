@@ -3,13 +3,10 @@ package models.entities;
 import models.world.World;
 
 public class BasicEntity extends Entity {
-
 	public BasicEntity(EntityStats stats) {
 		super(stats);
 	}
 	
-	
-
 	@Override
 	public void tick(World world) {
 		super.tick(world);
@@ -23,7 +20,7 @@ public class BasicEntity extends Entity {
 	}
 
 	@Override
-	public boolean isDead() {
-		return stats.getEnergy() <= 0 || stats.getHunger() >= 1;
+	public ConsumableType getPreferredFoodType() {
+		return ConsumableType.Plant;
 	}
 }

@@ -64,7 +64,7 @@ public class World implements IObservable {
 	public List<Entity> getEntities() {
 		return entities;
 	}
-	
+
 	public List<Entity> getEntityDeathsSinceLastTick() {
 		return deadEntitiesLastTick;
 	}
@@ -115,10 +115,16 @@ public class World implements IObservable {
 		}
 	}
 
-	public void removeFood(Food foodToRemove) {
+	public void removeConsumable(IConsumable consumable) {
 		for (Position p : food.keySet()) {
-			if (food.get(p) == foodToRemove) {
+			if (food.get(p).equals(consumable)) {
 				food.remove(p);
+				return;
+			}
+		}
+		for (Entity e : entities) {
+			if (consumable.equals(consumable)) {
+				entities.remove(e);
 				return;
 			}
 		}
@@ -129,17 +135,41 @@ public class World implements IObservable {
 	 * 
 	 * @param position
 	 * @param radius
-	 * @return A list of foods, ordered by distance (closest first)
+	 * @return A list of IConsumables, ordered by distance (closest first)
+	 */	
+	public List<Pair<Position, IConsumable>> getFoodInRadius(Position position, double radius){
+		return getFoodInRadius(position, radius, new ArrayList<IConsumable>());
+	}
+	
+	/**
+	 * Gets the foods in the world inside the given radius, centered at position
+	 * 
+	 * @param position
+	 * @param radius
+	 * @param exclude A list of IConsumables to ignore from search
+	 * @return A list of IConsumables, ordered by distance (closest first)
 	 */
-	public List<Pair<Position, Food>> getFoodInRadius(Position position, double radius) {
-		List<Position> positionsInRadius = getPositionsInRadius(position, radius, food.keySet());
-		List<Pair<Position, Food>> foods = new ArrayList<Pair<Position, Food>>();
+	public List<Pair<Position, IConsumable>> getFoodInRadius(Position position, double radius,
+			List<IConsumable> exclude) {
+		Map<Position, IConsumable> consumableEntities = entities.stream().filter(e -> !exclude.contains(e))
+				.collect(Collectors.toMap(Entity::getPosition, e -> e, (existing, replacement) -> existing));
+		
+		Set<Position> consumablePositions = consumableEntities.keySet();
+		consumablePositions
+				.addAll(food.keySet().stream().filter(e -> !exclude.contains(food.get(e))).collect(Collectors.toSet()));
+
+		List<Position> positionsInRadius = getPositionsInRadius(position, radius, consumablePositions);
+		List<Pair<Position, IConsumable>> consumables = new ArrayList<Pair<Position, IConsumable>>();
 
 		for (Position p : positionsInRadius) {
-			foods.add(new Pair<Position, Food>(p, food.get(p)));
+			if (food.containsKey(p)) {
+				consumables.add(new Pair<Position, IConsumable>(p, food.get(p)));
+			} else {
+				consumables.add(new Pair<Position, IConsumable>(p, consumableEntities.get(p)));
+			}
 		}
 
-		return foods;
+		return consumables;
 	}
 
 	public List<Entity> getEntitiesInRadius(Position position, double radius) {

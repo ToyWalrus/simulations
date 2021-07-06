@@ -7,28 +7,44 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import models.entities.EntityStats.Need;
 import models.genes.Gene;
 import models.world.Food;
+import models.world.IConsumable;
 import models.world.Position;
 import models.world.World;
 import systems.EntityBehavior;
 import util.HelperFunctions;
 
-public abstract class Entity {
+public abstract class Entity implements IConsumable {
+	public enum Gender {
+		Male, Female;
+
+		static Gender random() {
+			return new Random().nextBoolean() ? Male : Female;
+		}
+	}
+
 	public static double mutationVariation = .005;
 	protected EntityStats stats;
 	protected HashMap<String, Gene> genes;
 	protected Position worldPosition;
 	protected EntityBehavior behavior;
 	protected CauseOfDeath causeOfDeath;
+	protected Gender gender;
 
 	public Entity(EntityStats stats) {
+		this(stats, Gender.random());
+	}
+
+	public Entity(EntityStats stats, Gender gender) {
 		this.stats = stats;
 		this.genes = new HashMap<String, Gene>();
 		this.worldPosition = new Position(0, 0);
+		this.gender = gender;
 		causeOfDeath = CauseOfDeath.None;
 	}
-	
+
 	protected abstract Entity createNewInstance(EntityStats withStats);
 
 	public void tick(World world) {
@@ -36,8 +52,8 @@ public abstract class Entity {
 			behavior = new EntityBehavior(world, this);
 		}
 
-		double energyUsed = behavior.doEntityAction();		
-		stats.useEnergy(energyUsed);
+		double energyUsed = behavior.doEntityAction();
+		stats.tick(energyUsed);
 		updateNeeds();
 
 		if (isDead()) {
@@ -51,18 +67,21 @@ public abstract class Entity {
 		if (stats.getHunger() >= 1) {
 			causeOfDeath = CauseOfDeath.Hunger;
 			cause = "hunger";
-		}
-		else if (stats.getThirst() >= 1) {
+		} else if (stats.getThirst() >= 1) {
 			causeOfDeath = CauseOfDeath.Thirst;
 			cause = "thirst";
-		}
-		else if (stats.getEnergy() <= 0) {
+		} else if (stats.getEnergy() <= 0) {
 			causeOfDeath = CauseOfDeath.Energy;
 			cause = "no energy";
+		} else if (stats.getAge() > stats.getLifeExpectancy()) {
+			causeOfDeath = CauseOfDeath.OldAge;
+			cause = "old age";
 		}
 
 		System.out.println("Entity died due to " + cause);
 	}
+
+	public abstract ConsumableType getPreferredFoodType();
 
 	public Position getPosition() {
 		return worldPosition;
@@ -92,6 +111,10 @@ public abstract class Entity {
 		return 0.0025;
 	}
 
+	public Gender getGender() {
+		return gender;
+	}
+
 	protected void updateNeeds() {
 		stats.increaseHunger(hungerGainPerTick());
 		stats.increaseThirst(thirstGainPerTick());
@@ -99,7 +122,7 @@ public abstract class Entity {
 	}
 
 	public boolean isDead() {
-		return stats.getEnergy() <= 0 || stats.getHunger() >= 1 || stats.getThirst() >= 1;
+		return stats.getEnergy() <= 0 || stats.getHunger() >= 1 || stats.getThirst() >= 1 || stats.getAge() > stats.getLifeExpectancy();
 	}
 
 	public boolean isHungry() {
@@ -140,7 +163,7 @@ public abstract class Entity {
 		return true;
 	}
 
-	public void eatFood(Food food) {
+	public void consume(IConsumable food) {
 		stats.gainEnergy(food.getEnergy());
 		double hunger = stats.getHunger();
 		stats.setHunger(hunger - food.getNutrition());
@@ -150,11 +173,45 @@ public abstract class Entity {
 		double thirst = stats.getThirst();
 		stats.setThirst(thirst - amount);
 	}
-	
+
 	public CauseOfDeath getCauseOfDeath() {
 		return causeOfDeath;
 	}
-	
+
+	/**
+	 * The amount of energy this entity provides when consumed. It will be
+	 * equivalent to a percentage of its max energy divided by its current energy
+	 * and its progress toward maturity.
+	 */
+	@Override
+	public double getEnergy() {
+		final double maxEnergyRatio = .85;
+		double currentEnergyRatio = stats.getEnergy() / stats.getMaxEnergy();
+		double maxEnergyGained = stats.getMaxEnergy() * maxEnergyRatio * currentEnergyRatio;
+		return maxEnergyGained * stats.progressTowardMaturity();
+	}
+
+	@Override
+	public double getNutrition() {
+		final double nutritionBaseValue = 1;		
+		return nutritionBaseValue * stats.progressTowardMaturity();
+	}
+
+	@Override
+	public ConsumableType getConsumableType() {
+		return ConsumableType.Entity;
+	}
+
+	/** 
+	 * The other Entity must be of the opposite gender and must have the need
+	 * to reproduce.
+	 * @param other
+	 * @return Whether the given Entity is available to mate with.
+	 */
+	public boolean canReproduceWith(Entity other) {
+		if (other == null) return false;
+		return other.getStats().getCurrentNeed() == Need.Reproduce && gender != other.gender;
+	}
 
 	public Entity reproduce(Entity other) {
 		Random rand = new Random();

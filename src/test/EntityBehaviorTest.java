@@ -13,6 +13,7 @@ import org.junit.jupiter.api.*;
 import models.entities.*;
 import models.genes.*;
 import models.world.Food;
+import models.world.IConsumable;
 import models.world.Position;
 import models.world.World;
 import systems.EntityBehavior;
@@ -68,8 +69,8 @@ class EntityBehaviorTest {
 		assertEquals(entity.isHungry(), true);
 		assertEquals(entity.getPosition(), new Position(50, 50));
 
-		ArrayList<Pair<Position, Food>> defaultFood = new ArrayList<Pair<Position, Food>>();
-		defaultFood.add(new Pair<Position, Food>(entity.getPosition(), Food.createFullyGrown(0, 0)));
+		ArrayList<Pair<Position, IConsumable>> defaultFood = new ArrayList<Pair<Position, IConsumable>>();
+		defaultFood.add(new Pair<Position, IConsumable>(entity.getPosition(), Food.createFullyGrown(0, 0)));
 		when(behavior.world.getFoodInRadius(any(Position.class), any(Double.class))).thenReturn(defaultFood);
 
 		behavior.doEntityAction();
